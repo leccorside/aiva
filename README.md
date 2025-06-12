@@ -38,59 +38,9 @@ A escolha do Next.js para este desafio é altamente estratégica e se alinha per
 
 #### ✅ Por que usar Next.js neste desafio?
 
-1. Renderização híbrida (SSR + SSG + CSR)
-   Server-Side Rendering (SSR): ótimo para páginas como login ou dashboard, onde os dados mudam constantemente.
+Escolhi o Next.js para este projeto por ser um framework moderno que oferece uma estrutura robusta e escalável com suporte nativo a TypeScript, roteamento automático e renderização híbrida (SSR, SSG e CSR). Ele permite otimizar páginas dinamicamente conforme a necessidade, o que é ideal para uma aplicação com páginas públicas (como listagens e detalhes) e privadas (como dashboard autenticado). Além disso, sua integração nativa com ferramentas de performance, SEO, Web Vitals e imagens otimizadas ajuda a entregar uma aplicação pronta para produção desde o início.
 
-Static Site Generation (SSG): ideal para páginas como lista de categorias ou produtos que mudam com menos frequência.
-
-Client-Side Rendering (CSR): usado quando interações acontecem após a página carregar (ex: filtros, busca com debounce, etc).
-
-🔎 Vantagem: você pode usar o melhor dos três mundos com granularidade por página (fetch, cache, revalidate, etc).
-
-2. Estrutura pronta para produção
-   Configurações otimizadas de Webpack/Vite, ESLint, SWC, compressão, minificação, etc.
-
-Pronto para deploy com Vercel (com preview automático, CDN, edge functions).
-
-🔧 Vantagem: você economiza tempo com setup e pode focar no que importa: funcionalidades.
-
-3. App Router (versão moderna com React Server Components)
-   Sistema de rotas baseado em pastas e arquivos, sem precisar configurar nada.
-
-Suporte completo ao TypeScript com inferência automática de props e params.
-
-📁 Vantagem: rotas como src/app/products/[id]/page.tsx já funcionam automaticamente como página de detalhes do produto.
-
-4. Excelente DX (Developer Experience)
-   Tipagens fortes com TypeScript integradas por padrão.
-
-Hot reload super rápido.
-
-Padrão de pastas ajuda na organização escalável do projeto.
-
-Integração fácil com ferramentas modernas: Tailwind, React Query, Zustand, SWR, Cypress, Playwright, etc.
-
-5. SEO e Performance nativas
-   Cada página pode ter metadados e otimização para SEO.
-
-Suporte a otimização automática de imagens (next/image), lazy loading, code splitting por padrão.
-
-Web Vitals embutidos (LCP, FID, CLS, etc).
-
-📈 Vantagem: atende perfeitamente à exigência do desafio de Web Vitals e performance.
-
-6. Comunidade e manutenção
-   Mantido pelo time do Vercel com grande comunidade ativa.
-
-Documentação clara e atualizada: https://nextjs.org/docs
-
-📌 Conclusão
-Next.js é a melhor escolha para esse desafio porque:
-
-✔️ Une performance e flexibilidade
-✔️ É escalável e produtivo
-✔️ Está pronto para produção com deploy fácil
-✔️ Suporta todos os recursos exigidos no desafio (CRUD, roteamento, responsividade, testes, etc.)
+Outro ponto decisivo é a excelente experiência de desenvolvimento que o Next.js oferece, com suporte integrado a ESLint, Prettier, testes e CI/CD. Ele se integra facilmente com bibliotecas modernas como React Query, Tailwind CSS, Zustand e Playwright, permitindo que a aplicação atenda com eficiência todos os requisitos do desafio — como CRUD completo, autenticação, responsividade, deploy gratuito e testes automatizados.
 
 ---
 
