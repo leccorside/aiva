@@ -22,6 +22,40 @@
 
 ## 📋 Pré-requisitos
 
+Antes de começar, você vai precisar ter instalado na sua máquina:
+
+🧰 Ambiente de desenvolvimento
+
+Node.js v18 ou superior
+
+```bash
+node -v
+```
+
+npm (vem junto com o Node.js)
+
+```bash
+npm -v
+```
+
+✅ Alternativamente, você pode usar Yarn ou pnpm, mas o projeto está configurado com npm por padrão.
+
+💻 Ferramentas recomendadas (opcional)
+
+- Visual Studio Code – Editor de código
+
+- Volta – Para gerenciar versões do Node.js
+
+- Git – Controle de versão
+
+- Postman ou Insomnia – Para testar a Fake Store API
+
+📦 Instalação de dependências
+
+```bash
+npm install
+```
+
 ---
 
 ## 🔧 Instalação Local
