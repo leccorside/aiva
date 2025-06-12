@@ -22,43 +22,29 @@
 
 ## 📋 Pré-requisitos
 
-Antes de começar, você vai precisar ter instalado na sua máquina:
-
-🧰 Ambiente de desenvolvimento
-
-Node.js v18 ou superior
-
-```bash
-node -v
-```
-
-npm (vem junto com o Node.js)
-
-```bash
-npm -v
-```
-
-✅ Alternativamente, você pode usar Yarn ou pnpm, mas o projeto está configurado com npm por padrão.
-
-💻 Ferramentas recomendadas (opcional)
-
+- Git
+- React 19+
+- NextJs 15+
+- Node.js 20+ e npm
 - Visual Studio Code – Editor de código
-
-- Volta – Para gerenciar versões do Node.js
-
 - Git – Controle de versão
-
 - Postman ou Insomnia – Para testar a Fake Store API
-
-📦 Instalação de dependências
-
-```bash
-npm install
-```
 
 ---
 
 ## 🔧 Instalação Local
+
+Baixe o projeto no repositório
+
+```bash
+git clone https://github.com/leccorside/aiva/
+```
+
+Instale as dependências do projeto
+
+```bash
+npm install
+```
 
 ---
 
