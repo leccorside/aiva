@@ -1,10 +1,11 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { AuthProvider } from "@/context/AuthContext";
+import { Providers } from "./providers"; // se estiver usando React Query aqui
 
 export const metadata: Metadata = {
-  title: "Desafio Fake Store",
-  description: "Login + JWT com Fake Store API",
+  title: "Seu App",
+  description: "...",
 };
 
 export default function RootLayout({
@@ -15,7 +16,9 @@ export default function RootLayout({
   return (
     <html lang="pt-br">
       <body>
-        <AuthProvider>{children}</AuthProvider>
+        <Providers>
+          <AuthProvider>{children}</AuthProvider>
+        </Providers>
       </body>
     </html>
   );
