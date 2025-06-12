@@ -34,8 +34,6 @@
 
 ## 📦 Framework/Bundler (NEXT.JS)
 
-A escolha do Next.js para este desafio é altamente estratégica e se alinha perfeitamente com os requisitos técnicos e objetivos práticos do projeto. Abaixo explico por que utilizar Next.js, com foco nos benefícios diretos para seu desafio Front-End com TypeScript.
-
 #### ✅ Por que usar Next.js neste desafio?
 
 Escolhi o Next.js para este projeto por ser um framework moderno que oferece uma estrutura robusta e escalável com suporte nativo a TypeScript, roteamento automático e renderização híbrida (SSR, SSG e CSR). Ele permite otimizar páginas dinamicamente conforme a necessidade, o que é ideal para uma aplicação com páginas públicas (como listagens e detalhes) e privadas (como dashboard autenticado). Além disso, sua integração nativa com ferramentas de performance, SEO, Web Vitals e imagens otimizadas ajuda a entregar uma aplicação pronta para produção desde o início.
