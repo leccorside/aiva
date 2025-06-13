@@ -20,6 +20,16 @@
 
 </div>
 
+## 🎯 Objetivo
+
+- Fluxo de autenticação caso a API suporte (login, registro com uso de token).
+- Dashboard principal com listagem, busca e/ou filtros relevantes.
+- Operações de CRUD (criar, editar, remover) para pelo menos um recurso-chave.
+- Página de detalhe para um item individual.
+- Responsividade e feedback visual (loading, estados vazios, erros).
+
+---
+
 ## 📋 Pré-requisitos
 
 - Git
@@ -71,6 +81,9 @@ Outro ponto decisivo é a excelente experiência de desenvolvimento que o Next.j
 ---
 
 ## 👤 Usuários de Teste
+
+email: admin@mail.com
+password: admin123
 
 ---
 

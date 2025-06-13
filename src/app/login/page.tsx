@@ -5,10 +5,14 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import { useTheme } from "next-themes";
 
 export default function LoginPage() {
   const { isAuthenticated, login } = useAuth();
   const router = useRouter();
+  const { theme } = useTheme();
+  const isLight = theme === "light";
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -33,7 +37,13 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="max-w-sm mx-auto mt-20 p-6 bg-white rounded shadow">
+    <div
+      className={`max-w-sm mx-auto mt-20 p-6 rounded shadow transition-colors ${
+        isLight
+          ? "bg-white text-gray-800"
+          : "bg-gray-800 text-gray-100 border border-gray-700"
+      }`}
+    >
       <h2 className="text-xl font-bold mb-4">Login</h2>
       <form onSubmit={handleLogin} className="space-y-4">
         <Input
@@ -49,7 +59,9 @@ export default function LoginPage() {
           onChange={(e) => setPassword(e.target.value)}
         />
         <Button type="submit">Entrar</Button>
-        {error && <p className="text-red-600 text-sm">{error}</p>}
+        {error && (
+          <p className="text-red-500 dark:text-red-400 text-sm">{error}</p>
+        )}
       </form>
     </div>
   );

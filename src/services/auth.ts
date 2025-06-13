@@ -1,6 +1,24 @@
 import { API_BASE_URL } from "@/lib/api";
 
-export async function login(email: string, password: string) {
+interface LoginResponse {
+  access_token: string;
+  refresh_token?: string;
+}
+
+interface UserProfile {
+  name: string;
+  email: string;
+  role?: string;
+  avatar?: string;
+}
+
+export async function login(
+  email: string,
+  password: string
+): Promise<{
+  access_token: string;
+  user: UserProfile;
+}> {
   const res = await fetch(`${API_BASE_URL}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -11,10 +29,15 @@ export async function login(email: string, password: string) {
     throw new Error("Falha no login");
   }
 
-  return res.json(); // { access_token, refresh_token }
+  const { access_token }: LoginResponse = await res.json();
+
+  // Buscar perfil do usuário após obter token
+  const user = await getProfile(access_token);
+
+  return { access_token, user };
 }
 
-export async function getProfile(token: string) {
+export async function getProfile(token: string): Promise<UserProfile> {
   const res = await fetch(`${API_BASE_URL}/auth/profile`, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -25,5 +48,5 @@ export async function getProfile(token: string) {
     throw new Error("Erro ao buscar perfil");
   }
 
-  return res.json();
+  return res.json(); // deve conter { name, email, role, avatar }
 }

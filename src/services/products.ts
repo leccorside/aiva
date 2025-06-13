@@ -1,6 +1,12 @@
 import { getToken } from "@/lib/auth";
 import { API_BASE_URL } from "@/lib/api";
 
+export interface CategoryType {
+  id: number;
+  name: string;
+  image: string;
+}
+
 export async function getProducts(offset = 0, limit = 10) {
   const res = await fetch(
     `${API_BASE_URL}/products?offset=${offset}&limit=${limit}`
@@ -60,4 +66,30 @@ export async function updateProduct(
   }
 
   return res.json();
+}
+
+export async function getCategories(): Promise<CategoryType[]> {
+  const res = await fetch(`${API_BASE_URL}/categories`);
+
+  if (!res.ok) {
+    throw new Error("Erro ao buscar categorias");
+  }
+
+  return res.json();
+}
+
+// upload da imagem — POST /files
+export async function uploadImage(file: File): Promise<string> {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch(`${API_BASE_URL}/files/upload`, {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!res.ok) throw new Error("Erro ao enviar imagem");
+
+  const data = await res.json(); // { location: 'https://...' }
+  return data.location; // URL da imagem hospedada
 }
