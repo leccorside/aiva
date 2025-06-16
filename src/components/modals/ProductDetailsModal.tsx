@@ -55,6 +55,10 @@ export default function ProductDetailsModal({ product, onClose }: Props) {
               src={resolveImageUrl(img)}
               alt={`${product.title} ${idx + 1}`}
               className="w-24 h-24 rounded object-cover border"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = "/placeholder.jpg";
+              }}
             />
           ))}
         </div>
