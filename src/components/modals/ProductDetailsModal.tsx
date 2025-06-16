@@ -22,6 +22,13 @@ export default function ProductDetailsModal({ product, onClose }: Props) {
   const { theme } = useTheme();
   const isLight = theme === "light";
 
+  function resolveImageUrl(image?: string) {
+    if (!image) return "/placeholder.jpg";
+    return image.includes("/api/v1/files/")
+      ? `/api/proxy/${image.split("/").pop()}`
+      : image;
+  }
+
   return (
     <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
       <div
@@ -44,12 +51,9 @@ export default function ProductDetailsModal({ product, onClose }: Props) {
         <div className="flex flex-wrap gap-3 mb-4">
           {product.images.map((img, idx) => (
             <img
-              src={
-                product.images?.[0]?.includes("/api/v1/files/")
-                  ? `/api/proxy/${product.images[0].split("/").pop()}`
-                  : product.images?.[0]
-              }
-              alt={product.title}
+              key={idx}
+              src={resolveImageUrl(img)}
+              alt={`${product.title} ${idx + 1}`}
               className="w-24 h-24 rounded object-cover border"
             />
           ))}
