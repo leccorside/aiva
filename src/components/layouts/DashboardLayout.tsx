@@ -19,6 +19,7 @@ import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
+import { ConfirmModal } from "../ui/ConfirmModal";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -40,6 +41,13 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       icon: <ShoppingBag size={18} />,
     },
   ];
+
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  function handleLogout() {
+    logout();
+    router.push("/login");
+  }
 
   return (
     <div
@@ -161,10 +169,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
                   <div className="px-4 py-2">
                     <button
-                      onClick={() => {
-                        logout();
-                        router.push("/login");
-                      }}
+                      onClick={() => setShowConfirm(true)}
                       className="w-full flex items-center justify-center gap-2 text-sm bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
                     >
                       Logout <LogOut size={14} />
@@ -185,6 +190,16 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           {children}
         </main>
       </div>
+
+      <ConfirmModal
+        open={showConfirm}
+        title="Deseja sair da conta?"
+        description="Você será desconectado da aplicação."
+        confirmText="Sim, sair"
+        cancelText="Cancelar"
+        onConfirm={handleLogout}
+        onCancel={() => setShowConfirm(false)}
+      />
     </div>
   );
 }
