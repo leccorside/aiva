@@ -34,14 +34,31 @@ export default function NewProductModal({ onClose, onProductCreated }: Props) {
     };
   }, [imagePreviews]);
 
+  function handleRemoveImage(index: number) {
+    const newPreviews = [...imagePreviews];
+    const newFiles = [...imageFiles];
+    newPreviews.splice(index, 1);
+    newFiles.splice(index, 1);
+    setImagePreviews(newPreviews);
+    setImageFiles(newFiles);
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const imageUrls: string[] = [];
-      for (const file of imageFiles) {
-        const url = await uploadImage(file);
-        imageUrls.push(url);
+      let imageUrls: string[] = [];
+
+      if (imageFiles.length > 0) {
+        for (const file of imageFiles) {
+          const url = await uploadImage(file);
+          imageUrls.push(url);
+        }
+      }
+
+      // Se nenhuma imagem for enviada, define um fallback
+      if (imageUrls.length === 0) {
+        imageUrls.push("https://placehold.co/600x400?text=Sem+Imagem");
       }
 
       const newProduct = await createProduct({
@@ -138,13 +155,13 @@ export default function NewProductModal({ onClose, onProductCreated }: Props) {
               const files = e.target.files;
               if (files) {
                 const fileArray = Array.from(files);
-                setImageFiles(fileArray);
-                setImagePreviews(
-                  fileArray.map((file) => URL.createObjectURL(file))
+                const previews = fileArray.map((file) =>
+                  URL.createObjectURL(file)
                 );
+                setImageFiles(fileArray);
+                setImagePreviews(previews);
               }
             }}
-            required
             className={`w-full rounded px-3 py-2 border transition ${
               isLight
                 ? "bg-white text-gray-900 border-gray-300"
@@ -155,12 +172,21 @@ export default function NewProductModal({ onClose, onProductCreated }: Props) {
           {imagePreviews.length > 0 && (
             <div className="flex flex-wrap gap-4 mt-2">
               {imagePreviews.map((src, index) => (
-                <img
-                  key={index}
-                  src={src}
-                  alt={`Preview ${index + 1}`}
-                  className="w-24 h-24 object-cover rounded border"
-                />
+                <div key={index} className="relative">
+                  <img
+                    src={src}
+                    alt={`Preview ${index + 1}`}
+                    className="w-24 h-24 object-cover rounded border"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveImage(index)}
+                    className="absolute top-0 right-0 bg-red-600 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center"
+                    title="Remover imagem"
+                  >
+                    ×
+                  </button>
+                </div>
               ))}
             </div>
           )}
