@@ -47,8 +47,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const userData: User = {
         name: profile.name,
         email: profile.email,
-        avatar: profile.avatar,
-        role: profile.role,
+        avatar: profile.avatar || "", // valor padrão
+        role: profile.role || "user", // valor padrão
       };
       localStorage.setItem("user", JSON.stringify(userData));
       setUser(userData);
