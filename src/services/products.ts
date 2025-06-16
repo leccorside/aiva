@@ -7,20 +7,28 @@ export interface CategoryType {
   image: string;
 }
 
-export async function getProducts(offset = 0, limit = 10) {
-  const res = await fetch(
-    `${API_BASE_URL}/products?offset=${offset}&limit=${limit}`
+export async function getProducts(page = 1, limit = 10) {
+  const totalLimit = 50;
+  const totalRes = await fetch(
+    `${API_BASE_URL}/products?offset=0&limit=${totalLimit}`
   );
-  if (!res.ok) {
-    throw new Error("Erro ao buscar produtos");
-  }
-  return res.json();
+  if (!totalRes.ok) throw new Error("Erro ao buscar os produtos mais recentes");
+
+  const allRecentProducts = await totalRes.json();
+
+  // Ordena por mais recente (desc) assumindo que o produto mais novo vem por último
+  const sorted = allRecentProducts.sort((a: any, b: any) => b.id - a.id);
+
+  const start = (page - 1) * limit;
+  const paginated = sorted.slice(start, start + limit);
+
+  return paginated;
 }
 
 export async function getTotalProductsCount() {
   const res = await fetch(`${API_BASE_URL}/products`);
   const data = await res.json();
-  return data.length; // a API retorna tudo, então usamos length
+  return data.length;
 }
 
 export async function createProduct(data: {
@@ -78,7 +86,6 @@ export async function getCategories(): Promise<CategoryType[]> {
   return res.json();
 }
 
-// upload da imagem — POST /files
 export async function uploadImage(file: File): Promise<string> {
   const formData = new FormData();
   formData.append("file", file);
@@ -90,6 +97,6 @@ export async function uploadImage(file: File): Promise<string> {
 
   if (!res.ok) throw new Error("Erro ao enviar imagem");
 
-  const data = await res.json(); // { location: 'https://...' }
-  return data.location; // URL da imagem hospedada
+  const data = await res.json();
+  return data.location;
 }
