@@ -1,3 +1,4 @@
+// components/modals/EditProductModal.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -5,6 +6,7 @@ import { useTheme } from "next-themes";
 import { updateProduct, getCategories, uploadImage } from "@/services/products";
 import type { CategoryType } from "@/services/products";
 import { Button } from "@/components/ui/Button";
+import { X } from "lucide-react";
 
 interface EditProductModalProps {
   product: any;
@@ -22,8 +24,11 @@ export default function EditProductModal({
   const [price, setPrice] = useState(product.price || "");
   const [categoryId, setCategoryId] = useState(product.category?.id || "");
   const [categories, setCategories] = useState<CategoryType[]>([]);
+  const [existingImages, setExistingImages] = useState<string[]>(
+    product.images || []
+  );
   const [imageFiles, setImageFiles] = useState<File[]>([]);
-  const [imageUrls, setImageUrls] = useState<string[]>(product.images || []);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { theme } = useTheme();
@@ -33,19 +38,21 @@ export default function EditProductModal({
     getCategories().then(setCategories).catch(console.error);
   }, []);
 
+  useEffect(() => {
+    return () => {
+      imagePreviews.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [imagePreviews]);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      let finalImageUrls = [...imageUrls];
+      let uploadedImageUrls: string[] = [];
 
-      if (imageFiles.length > 0) {
-        const uploadedUrls = [];
-        for (const file of imageFiles) {
-          const url = await uploadImage(file);
-          uploadedUrls.push(url);
-        }
-        finalImageUrls = [...finalImageUrls, ...uploadedUrls];
+      for (const file of imageFiles) {
+        const url = await uploadImage(file);
+        uploadedImageUrls.push(url);
       }
 
       const updated = await updateProduct(product.id, {
@@ -53,7 +60,7 @@ export default function EditProductModal({
         description,
         price: Number(price),
         categoryId: Number(categoryId),
-        images: finalImageUrls,
+        images: [...existingImages, ...uploadedImageUrls],
       });
 
       onProductUpdated(updated);
@@ -64,16 +71,11 @@ export default function EditProductModal({
     }
   }
 
-  function handleRemoveImage(url: string) {
-    setImageUrls((prev) => prev.filter((img) => img !== url));
-  }
-
-  function resolveImageUrl(src: string) {
-    if (src.includes("/api/v1/files/")) {
-      const filename = src.split("/").pop();
-      return `/api/proxy/${filename}`;
-    }
-    return src;
+  function resolveImageUrl(url: string) {
+    if (!url) return "/placeholder.jpg";
+    return url.includes("/api/v1/files/")
+      ? `/api/proxy/${url.split("/").pop()}`
+      : url;
   }
 
   return (
@@ -154,6 +156,9 @@ export default function EditProductModal({
               if (files) {
                 const fileArray = Array.from(files);
                 setImageFiles(fileArray);
+                setImagePreviews(
+                  fileArray.map((file) => URL.createObjectURL(file))
+                );
               }
             }}
             className={`w-full rounded px-3 py-2 border transition ${
@@ -163,26 +168,50 @@ export default function EditProductModal({
             }`}
           />
 
-          {imageUrls.length > 0 && (
-            <div className="flex flex-wrap gap-4 mt-2">
-              {imageUrls.map((src, index) => (
-                <div key={index} className="relative group">
-                  <img
-                    src={resolveImageUrl(src)}
-                    alt={`Imagem ${index + 1}`}
-                    className="w-24 h-24 object-cover rounded border"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveImage(src)}
-                    className="absolute top-0 right-0 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center -mt-1 -mr-1"
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
+          <div className="flex flex-wrap gap-4 mt-2">
+            {existingImages.map((src, index) => (
+              <div key={`existing-${index}`} className="relative">
+                <img
+                  src={resolveImageUrl(src)}
+                  alt={`Imagem existente ${index + 1}`}
+                  className="w-24 h-24 object-cover rounded border"
+                />
+                <button
+                  type="button"
+                  className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                  onClick={() =>
+                    setExistingImages((prev) =>
+                      prev.filter((_, i) => i !== index)
+                    )
+                  }
+                >
+                  <X size={12} />
+                </button>
+              </div>
+            ))}
+
+            {imagePreviews.map((src, index) => (
+              <div key={`preview-${index}`} className="relative">
+                <img
+                  src={src}
+                  alt={`Preview ${index + 1}`}
+                  className="w-24 h-24 object-cover rounded border"
+                />
+                <button
+                  type="button"
+                  className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                  onClick={() => {
+                    setImagePreviews((prev) =>
+                      prev.filter((_, i) => i !== index)
+                    );
+                    setImageFiles((prev) => prev.filter((_, i) => i !== index));
+                  }}
+                >
+                  <X size={12} />
+                </button>
+              </div>
+            ))}
+          </div>
 
           <div className="flex justify-between mt-4">
             <Button type="button" onClick={onClose} variant="secondary">
