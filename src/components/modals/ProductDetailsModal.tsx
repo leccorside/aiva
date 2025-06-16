@@ -44,9 +44,12 @@ export default function ProductDetailsModal({ product, onClose }: Props) {
         <div className="flex flex-wrap gap-3 mb-4">
           {product.images.map((img, idx) => (
             <img
-              key={idx}
-              src={img}
-              alt={`Imagem ${idx + 1}`}
+              src={
+                product.images?.[0]?.includes("/api/v1/files/")
+                  ? `/api/proxy/${product.images[0].split("/").pop()}`
+                  : product.images?.[0]
+              }
+              alt={product.title}
               className="w-24 h-24 rounded object-cover border"
             />
           ))}
