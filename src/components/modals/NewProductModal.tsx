@@ -8,9 +8,10 @@ import { Button } from "@/components/ui/Button";
 
 interface Props {
   onClose: () => void;
+  onProductCreated: (product: any) => void;
 }
 
-export default function NewProductModal({ onClose }: Props) {
+export default function NewProductModal({ onClose, onProductCreated }: Props) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
@@ -43,7 +44,7 @@ export default function NewProductModal({ onClose }: Props) {
         imageUrls.push(url);
       }
 
-      await createProduct({
+      const newProduct = await createProduct({
         title,
         description,
         price: Number(price),
@@ -51,6 +52,7 @@ export default function NewProductModal({ onClose }: Props) {
         images: imageUrls,
       });
 
+      onProductCreated(newProduct);
       onClose();
     } catch (err) {
       console.error("Erro ao criar produto", err);
