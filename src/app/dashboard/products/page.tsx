@@ -119,7 +119,7 @@ export default function ProductManager() {
               className="py-2"
               onClick={() => setShowModal(true)}
             >
-              + Novo Produto
+              +<span className="hidden md:inline ml-1">Novo Produto</span>
             </Button>
           </div>
         </div>

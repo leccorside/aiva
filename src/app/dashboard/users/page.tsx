@@ -107,7 +107,7 @@ export default function UserManager() {
               className="py-2"
               onClick={() => setShowModal(true)}
             >
-              + Novo Usuário
+              +<span className="hidden md:inline ml-1">Novo Usuário</span>
             </Button>
           </div>
         </div>

@@ -110,7 +110,7 @@ export default function CategoryManager() {
               className="py-2"
               onClick={() => setShowModal(true)}
             >
-              + Nova Categoria
+              +<span className="hidden md:inline ml-1">Novo Produto</span>
             </Button>
           </div>
         </div>
