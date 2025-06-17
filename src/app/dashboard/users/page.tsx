@@ -1,37 +1,39 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getProducts, deleteProduct } from "@/services/products";
+import { getUsers, deleteUser } from "@/services/users";
 import { Button } from "@/components/ui/Button";
 import { Eye, Edit, Trash, Search } from "lucide-react";
 import { useTheme } from "next-themes";
-import NewProductModal from "@/components/modals/NewProductModal";
-import ProductDetailsModal from "@/components/modals/ProductDetailsModal";
-import EditProductModal from "@/components/modals/EditProductModal";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import UserModal from "@/components/modals/UserModal";
 
-export default function ProductManager() {
+export default function UserManager() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const [users, setUsers] = useState<any[]>([]);
+  const [allUsers, setAllUsers] = useState<any[]>([]);
+  const [selectedUser, setSelectedUser] = useState<any | null>(null);
+  const [userToEdit, setUserToEdit] = useState<any | null>(null);
+  const [userToDelete, setUserToDelete] = useState<any | null>(null);
   const [showModal, setShowModal] = useState(false);
-  const [products, setProducts] = useState<any[]>([]);
-  const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
-  const [productToEdit, setProductToEdit] = useState<any | null>(null);
-  const [productToDelete, setProductToDelete] = useState<any | null>(null);
   const limit = 10;
   const { theme } = useTheme();
   const isLight = theme === "light";
 
   useEffect(() => {
     (async () => {
-      const fetched = await getProducts(page, limit);
-      setProducts(fetched);
+      const fetched = await getUsers(1, 1000);
+      setAllUsers(fetched);
     })();
-  }, [page]);
+  }, []);
 
-  const truncate = (text: string, maxWords = 10) =>
-    text.split(" ").slice(0, maxWords).join(" ") + "...";
+  useEffect(() => {
+    const start = (page - 1) * limit;
+    const end = start + limit;
+    setUsers(allUsers.slice(start, end));
+  }, [page, allUsers]);
 
   const highlight = (text: string) =>
     search
@@ -41,27 +43,27 @@ export default function ProductManager() {
         )
       : text;
 
-  const filtered = products.filter(
-    (p: any) =>
-      p.title.toLowerCase().includes(search.toLowerCase()) ||
-      p.description.toLowerCase().includes(search.toLowerCase())
+  const filtered = users.filter(
+    (u: any) =>
+      u.name.toLowerCase().includes(search.toLowerCase()) ||
+      u.email.toLowerCase().includes(search.toLowerCase())
   );
 
   function resolveImageUrl(image?: string) {
-    if (!image) return "/placeholder.jpg";
+    if (!image) return "https://i.pravatar.cc/70";
     const filename = image.split("/").pop();
-    return `/api/proxy/${filename}`;
+    return image.includes("/api/v1/files/") ? `/api/proxy/${filename}` : image;
   }
 
   const handleDelete = async () => {
-    if (!productToDelete) return;
+    if (!userToDelete) return;
     try {
-      await deleteProduct(productToDelete.id);
-      setProducts((prev) => prev.filter((p) => p.id !== productToDelete.id));
+      await deleteUser(userToDelete.id);
+      setAllUsers((prev) => prev.filter((u) => u.id !== userToDelete.id));
     } catch (err) {
-      console.error("Erro ao deletar produto", err);
+      console.error("Erro ao deletar usuário", err);
     } finally {
-      setProductToDelete(null);
+      setUserToDelete(null);
     }
   };
 
@@ -74,7 +76,7 @@ export default function ProductManager() {
               isLight ? "text-gray-900" : "text-white"
             }`}
           >
-            Products
+            Usuários
           </h1>
           <div className="flex items-center gap-4 w-full md:w-auto">
             <div className="relative w-full md:w-64">
@@ -91,7 +93,7 @@ export default function ProductManager() {
                     ? "border border-gray-300 focus:ring-blue-500 bg-white text-gray-900"
                     : "border border-gray-600 bg-gray-800 text-white focus:ring-blue-400 placeholder-gray-400"
                 }`}
-                placeholder="Buscar Produto..."
+                placeholder="Buscar Usuário..."
                 value={search}
                 onChange={(e) => {
                   setSearch(e.target.value);
@@ -105,156 +107,106 @@ export default function ProductManager() {
               className="py-2"
               onClick={() => setShowModal(true)}
             >
-              + Add Product
+              + Novo Usuário
             </Button>
           </div>
         </div>
 
         <div className="grid gap-4">
-          {filtered.map((product: any) => (
+          {filtered.map((user: any) => (
             <div
-              key={product.id}
-              className={`rounded-md border shadow-md p-4 transition flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center ${
+              key={user.id}
+              className={`rounded-md border shadow-md p-4 flex justify-between items-center transition gap-4 ${
                 isLight
                   ? "bg-white border-gray-200 text-gray-900"
                   : "bg-gray-900 border-gray-700 text-white"
               }`}
             >
-              <div className="flex flex-col sm:flex-row gap-4 w-full">
-                <div className="flex gap-3 w-full sm:w-auto">
-                  <img
-                    src={
-                      product.images?.[0]?.includes("/api/v1/files/")
-                        ? `/api/proxy/${product.images[0].split("/").pop()}`
-                        : product.images?.[0]
-                    }
-                    alt={product.title}
-                    className="w-16 h-16 object-cover rounded border"
+              <div className="flex items-center gap-4">
+                <img
+                  src={resolveImageUrl(
+                    user?.avatar || "https://i.pravatar.cc/70"
+                  )}
+                  alt={user.name}
+                  className="w-12 h-12 object-cover rounded-full border"
+                />
+                <div>
+                  <div
+                    className="font-semibold"
+                    dangerouslySetInnerHTML={{
+                      __html: highlight(user.name),
+                    }}
                   />
-                  <div>
-                    <div
-                      className="font-semibold"
-                      dangerouslySetInnerHTML={{
-                        __html: highlight(product.title),
-                      }}
-                    />
-                    <div
-                      className="text-sm"
-                      dangerouslySetInnerHTML={{
-                        __html: highlight(truncate(product.description, 10)),
-                      }}
-                    />
-                  </div>
-                </div>
-                <div className="sm:hidden mt-2">
-                  <div className="text-sm font-medium">
-                    Categoria: {product.category?.name}
-                  </div>
-                  <div className="text-sm font-medium">
-                    Preço: R$ {product.price}
-                  </div>
-                  <div className="flex gap-2 mt-2">
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      onClick={() => setSelectedProduct(product)}
-                    >
-                      <Eye size={16} />
-                    </Button>
-                    <Button size="sm" onClick={() => setProductToEdit(product)}>
-                      <Edit size={16} />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="danger"
-                      onClick={() => setProductToDelete(product)}
-                    >
-                      <Trash size={16} />
-                    </Button>
-                  </div>
+                  <div
+                    className="text-sm text-gray-500"
+                    dangerouslySetInnerHTML={{
+                      __html: highlight(user.email),
+                    }}
+                  />
+                  <div className="text-xs text-gray-400">{user.role}</div>
                 </div>
               </div>
-              <div className="hidden sm:flex items-center gap-8">
-                <div className="text-sm font-medium">
-                  <div className="mb-1">
-                    Categoria: {product.category?.name}
-                  </div>
-                  <div>Preço: R$ {product.price}</div>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    onClick={() => setSelectedProduct(product)}
-                  >
-                    <Eye size={16} />
-                  </Button>
-                  <Button size="sm" onClick={() => setProductToEdit(product)}>
-                    <Edit size={16} />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="danger"
-                    onClick={() => setProductToDelete(product)}
-                  >
-                    <Trash size={16} />
-                  </Button>
-                </div>
+              <div className="flex gap-2">
+                <Button size="sm" onClick={() => setUserToEdit(user)}>
+                  <Edit size={16} />
+                </Button>
+                <Button
+                  size="sm"
+                  variant="danger"
+                  onClick={() => setUserToDelete(user)}
+                >
+                  <Trash size={16} />
+                </Button>
               </div>
             </div>
           ))}
         </div>
 
-        <div className="mt-6 flex justify-center gap-2">
-          {Array.from({ length: 5 }, (_, i) => i + 1).map((p) => (
-            <Button
-              key={p}
-              size="sm"
-              variant={p === page ? "primary" : "secondary"}
-              onClick={() => setPage(p)}
-            >
-              {p}
-            </Button>
-          ))}
-        </div>
+        {Math.ceil(allUsers.length / limit) > 1 && (
+          <div className="mt-6 flex justify-center gap-2">
+            {Array.from(
+              { length: Math.ceil(allUsers.length / limit) },
+              (_, i) => i + 1
+            ).map((p) => (
+              <Button
+                key={p}
+                size="sm"
+                variant={p === page ? "primary" : "secondary"}
+                onClick={() => setPage(p)}
+              >
+                {p}
+              </Button>
+            ))}
+          </div>
+        )}
 
-        {showModal && (
-          <NewProductModal
-            onClose={() => setShowModal(false)}
-            onProductCreated={(newProduct) => {
-              setProducts((prev) => [newProduct, ...prev].slice(0, 50));
+        {(showModal || userToEdit) && (
+          <UserModal
+            user={userToEdit}
+            onClose={() => {
               setShowModal(false);
+              setUserToEdit(null);
+            }}
+            onUserSaved={(saved) => {
+              setShowModal(false);
+              setUserToEdit(null);
+              setAllUsers((prev) => {
+                const exists = prev.find((u) => u.id === saved.id);
+                return exists
+                  ? prev.map((u) => (u.id === saved.id ? saved : u))
+                  : [saved, ...prev];
+              });
             }}
           />
         )}
 
-        {selectedProduct && (
-          <ProductDetailsModal
-            product={selectedProduct}
-            onClose={() => setSelectedProduct(null)}
-          />
-        )}
-
-        {productToEdit && (
-          <EditProductModal
-            product={productToEdit}
-            onClose={() => setProductToEdit(null)}
-            onProductUpdated={(updated) => {
-              setProducts((prev) =>
-                prev.map((p) => (p.id === updated.id ? updated : p))
-              );
-              setProductToEdit(null);
-            }}
-          />
-        )}
-
-        {productToDelete && (
+        {userToDelete && (
           <ConfirmModal
-            open={true}
-            title="Remover Produto"
-            description="Tem certeza que deseja remover este produto?"
+            open={!!userToDelete}
+            title="Remover Usuário"
+            description={`Deseja remover o usuário '${userToDelete.name}'?`}
+            onCancel={() => setUserToDelete(null)}
             onConfirm={handleDelete}
-            onCancel={() => setProductToDelete(null)}
           />
         )}
       </div>

@@ -61,6 +61,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     router.push("/login");
   }
 
+  function resolveImageUrl(image?: string) {
+    if (!image) return "/img/placeholder.jpg";
+    const filename = image.split("/").pop();
+    return image.includes("/api/v1/files/") ? `/api/proxy/${filename}` : image;
+  }
+
   return (
     <div
       className={`flex h-screen overflow-hidden ${
@@ -137,8 +143,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             <div className="relative">
               <button onClick={() => setUserMenuOpen(!userMenuOpen)}>
                 <img
-                  src={user?.avatar || "https://i.pravatar.cc/40"}
-                  alt="avatar"
+                  src={resolveImageUrl(
+                    user?.avatar || "https://i.pravatar.cc/70"
+                  )}
+                  alt={user?.name}
                   className="w-8 h-8 rounded-full border"
                 />
               </button>

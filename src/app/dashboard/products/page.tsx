@@ -119,7 +119,7 @@ export default function ProductManager() {
               className="py-2"
               onClick={() => setShowModal(true)}
             >
-              + Add Product
+              + Novo Produto
             </Button>
           </div>
         </div>
