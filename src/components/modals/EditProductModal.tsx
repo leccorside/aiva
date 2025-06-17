@@ -46,6 +46,7 @@ export default function EditProductModal({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setIsSubmitting(true);
+
     try {
       let imageUrls = [...imagePreviews];
 
@@ -60,15 +61,25 @@ export default function EditProductModal({
         imageUrls.push("https://placehold.co/600x400?text=Produto+Sem+Imagem");
       }
 
-      const updated = await updateProduct(product.id, {
+      const payload = {
         title,
         description,
         price: Number(price),
         categoryId: Number(categoryId),
         images: imageUrls,
-      });
+      };
 
-      onProductUpdated(updated);
+      console.log("[EditProductModal] Payload final:", payload);
+
+      const updated = await updateProduct(product.id, payload);
+
+      // sobrescreve manualmente a categoria baseada na seleção
+      const finalProduct = {
+        ...updated,
+        category: categories.find((cat) => cat.id === Number(categoryId)),
+      };
+
+      onProductUpdated(finalProduct);
     } catch (err) {
       console.error("Erro ao atualizar produto", err);
     } finally {

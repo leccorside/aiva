@@ -1,35 +1,33 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getTotalProductsCount, getProducts } from "@/services/products";
+import { getProducts, deleteProduct } from "@/services/products";
 import { Button } from "@/components/ui/Button";
 import { Eye, Edit, Trash, Search } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import NewProductModal from "@/components/modals/NewProductModal";
 import ProductDetailsModal from "@/components/modals/ProductDetailsModal";
 import EditProductModal from "@/components/modals/EditProductModal";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 
 export default function ProductManager() {
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(5); // fixo pois sempre 50 produtos
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [products, setProducts] = useState<any[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
   const [productToEdit, setProductToEdit] = useState<any | null>(null);
+  const [productToDelete, setProductToDelete] = useState<any | null>(null);
   const limit = 10;
-  const router = useRouter();
   const { theme } = useTheme();
-
-  const fetchProducts = async () => {
-    const fetched = await getProducts(page, limit);
-    setProducts(fetched);
-  };
+  const isLight = theme === "light";
 
   useEffect(() => {
-    fetchProducts();
+    (async () => {
+      const fetched = await getProducts(page, limit);
+      setProducts(fetched);
+    })();
   }, [page]);
 
   const truncate = (text: string, maxWords = 10) =>
@@ -49,17 +47,27 @@ export default function ProductManager() {
       p.description.toLowerCase().includes(search.toLowerCase())
   );
 
-  const isLight = theme === "light";
-
   function resolveImageUrl(image?: string) {
     if (!image) return "/placeholder.jpg";
     const filename = image.split("/").pop();
     return `/api/proxy/${filename}`;
   }
 
+  const handleDelete = async () => {
+    if (!productToDelete) return;
+    try {
+      await deleteProduct(productToDelete.id);
+      setProducts((prev) => prev.filter((p) => p.id !== productToDelete.id));
+    } catch (err) {
+      console.error("Erro ao deletar produto", err);
+    } finally {
+      setProductToDelete(null);
+    }
+  };
+
   return (
     <ProtectedRoute>
-      <div className="max-w-7xl mx-auto p-6">
+      <div className="max-w-7xl mx-auto p-4 sm:p-6">
         <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
           <h1
             className={`text-2xl font-bold ${
@@ -102,110 +110,103 @@ export default function ProductManager() {
           </div>
         </div>
 
-        <div
-          className={`w-full overflow-x-auto rounded-md border shadow ${
-            isLight
-              ? "bg-white border-gray-600"
-              : "bg-gray-900 border-gray-700 text-white"
-          }`}
-        >
-          <table className="min-w-[700px] w-full text-sm">
-            <thead
-              className={`${
+        <div className="grid gap-4">
+          {filtered.map((product: any) => (
+            <div
+              key={product.id}
+              className={`rounded-md border shadow-md p-4 transition flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center ${
                 isLight
-                  ? "bg-gray-50 text-gray-700"
-                  : "bg-gray-800 text-gray-300"
+                  ? "bg-white border-gray-200 text-gray-900"
+                  : "bg-gray-900 border-gray-700 text-white"
               }`}
             >
-              <tr>
-                <th className="p-4">Product</th>
-                <th className="p-4">Category</th>
-                <th className="p-4">SKU</th>
-                <th className="p-4">Price</th>
-                <th className="p-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody
-              className={`divide-y ${
-                isLight ? "divide-gray-200" : "divide-gray-700"
-              }`}
-            >
-              {filtered.map((product: any) => (
-                <tr
-                  key={product.id}
-                  className={`${
-                    isLight ? "hover:bg-gray-100" : "hover:bg-gray-800"
-                  }`}
-                >
-                  <td className="p-4 flex items-center gap-3">
-                    <img
-                      src={
-                        product.images?.[0]?.includes("/api/v1/files/")
-                          ? `/api/proxy/${product.images[0].split("/").pop()}`
-                          : product.images?.[0]
-                      }
-                      alt={product.title}
-                      className="w-12 h-12 object-cover rounded border"
+              <div className="flex flex-col sm:flex-row gap-4 w-full">
+                <div className="flex gap-3 w-full sm:w-auto">
+                  <img
+                    src={
+                      product.images?.[0]?.includes("/api/v1/files/")
+                        ? `/api/proxy/${product.images[0].split("/").pop()}`
+                        : product.images?.[0]
+                    }
+                    alt={product.title}
+                    className="w-16 h-16 object-cover rounded border"
+                  />
+                  <div>
+                    <div
+                      className="font-semibold"
+                      dangerouslySetInnerHTML={{
+                        __html: highlight(product.title),
+                      }}
                     />
-                    <div>
-                      <div
-                        className={`font-medium ${
-                          isLight ? "text-gray-900" : "text-white"
-                        }`}
-                        dangerouslySetInnerHTML={{
-                          __html: highlight(product.title),
-                        }}
-                      />
-                      <div
-                        className={`text-sm ${
-                          isLight ? "text-gray-500" : "text-gray-300"
-                        }`}
-                        dangerouslySetInnerHTML={{
-                          __html: highlight(truncate(product.description, 10)),
-                        }}
-                      />
-                    </div>
-                  </td>
-                  <td className="p-4">
-                    <div className="flex items-center gap-2">
-                      <img
-                        src={product.category?.image}
-                        alt={product.category?.name}
-                        className="w-5 h-5 rounded-full"
-                      />
-                      <span>{product.category?.name}</span>
-                    </div>
-                  </td>
-                  <td className="p-4">{product.id}</td>
-                  <td className="p-4">R$ {product.price}</td>
-                  <td className="p-4 text-right">
-                    <div className="inline-flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => setSelectedProduct(product)}
-                      >
-                        <Eye size={16} />
-                      </Button>
-                      <Button
-                        size="sm"
-                        onClick={() => setProductToEdit(product)}
-                      >
-                        <Edit size={16} />
-                      </Button>
-                      <Button size="sm" variant="danger">
-                        <Trash size={16} />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    <div
+                      className="text-sm"
+                      dangerouslySetInnerHTML={{
+                        __html: highlight(truncate(product.description, 10)),
+                      }}
+                    />
+                  </div>
+                </div>
+                <div className="sm:hidden mt-2">
+                  <div className="text-sm font-medium">
+                    Categoria: {product.category?.name}
+                  </div>
+                  <div className="text-sm font-medium">
+                    Preço: R$ {product.price}
+                  </div>
+                  <div className="flex gap-2 mt-2">
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => setSelectedProduct(product)}
+                    >
+                      <Eye size={16} />
+                    </Button>
+                    <Button size="sm" onClick={() => setProductToEdit(product)}>
+                      <Edit size={16} />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="danger"
+                      onClick={() => setProductToDelete(product)}
+                    >
+                      <Trash size={16} />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+              <div className="hidden sm:flex items-center gap-8">
+                <div className="text-sm font-medium">
+                  <div className="mb-1">
+                    Categoria: {product.category?.name}
+                  </div>
+                  <div>Preço: R$ {product.price}</div>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => setSelectedProduct(product)}
+                  >
+                    <Eye size={16} />
+                  </Button>
+                  <Button size="sm" onClick={() => setProductToEdit(product)}>
+                    <Edit size={16} />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="danger"
+                    onClick={() => setProductToDelete(product)}
+                  >
+                    <Trash size={16} />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
 
         <div className="mt-6 flex justify-center gap-2">
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+          {Array.from({ length: 5 }, (_, i) => i + 1).map((p) => (
             <Button
               key={p}
               size="sm"
@@ -244,6 +245,16 @@ export default function ProductManager() {
               );
               setProductToEdit(null);
             }}
+          />
+        )}
+
+        {productToDelete && (
+          <ConfirmModal
+            open={true}
+            title="Remover Produto"
+            description="Tem certeza que deseja remover este produto?"
+            onConfirm={handleDelete}
+            onCancel={() => setProductToDelete(null)}
           />
         )}
       </div>

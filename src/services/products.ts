@@ -16,9 +16,7 @@ export async function getProducts(page = 1, limit = 10) {
 
   const allRecentProducts = await totalRes.json();
 
-  // Ordena por mais recente (desc) assumindo que o produto mais novo vem por último
   const sorted = allRecentProducts.sort((a: any, b: any) => b.id - a.id);
-
   const start = (page - 1) * limit;
   const paginated = sorted.slice(start, start + limit);
 
@@ -57,7 +55,13 @@ export async function createProduct(data: {
 
 export async function updateProduct(
   id: number,
-  data: Partial<Parameters<typeof createProduct>[0]>
+  data: {
+    title: string;
+    price: number;
+    description: string;
+    categoryId: number;
+    images: string[];
+  }
 ) {
   const token = getToken();
   const res = await fetch(`${API_BASE_URL}/products/${id}`, {
@@ -70,10 +74,28 @@ export async function updateProduct(
   });
 
   if (!res.ok) {
+    const error = await res.json();
+    console.error("[updateProduct] API Error:", error);
     throw new Error("Erro ao atualizar produto");
   }
 
   return res.json();
+}
+
+export async function deleteProduct(id: number) {
+  const token = getToken();
+  const res = await fetch(`${API_BASE_URL}/products/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error("Erro ao deletar produto");
+  }
+
+  return true;
 }
 
 export async function getCategories(): Promise<CategoryType[]> {
