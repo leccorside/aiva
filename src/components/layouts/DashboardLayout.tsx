@@ -90,17 +90,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               {icon} {label}
             </Link>
           ))}
-
-          <button
-            className={`mt-4 flex w-full items-center gap-3 rounded px-3 py-2 text-sm
-            ${
-              isLight
-                ? "text-gray-700 hover:bg-gray-100"
-                : "text-white hover:bg-gray-700"
-            }`}
-          >
-            <LogOut size={18} /> Logout
-          </button>
         </nav>
       </aside>
 
