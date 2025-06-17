@@ -44,7 +44,10 @@ export default function LoginPage() {
           : "bg-gray-800 text-gray-100 border border-gray-700"
       }`}
     >
-      <h2 className="text-xl font-bold mb-4">Login</h2>
+      <div className="flex justify-center items-center my-4">
+        <img src="/img/logo.svg" alt="Logo" className="w-20" />
+      </div>
+      <h2 className="text-xl font-bold mb-4">Faça Login</h2>
       <form onSubmit={handleLogin} className="space-y-4">
         <Input
           placeholder="Email"
