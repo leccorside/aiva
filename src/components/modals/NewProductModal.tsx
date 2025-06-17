@@ -56,18 +56,21 @@ export default function NewProductModal({ onClose, onProductCreated }: Props) {
         }
       }
 
-      // Se nenhuma imagem for enviada, define um fallback
       if (imageUrls.length === 0) {
         imageUrls.push("https://placehold.co/600x400?text=Sem+Imagem");
       }
 
-      const newProduct = await createProduct({
-        title,
-        description,
+      const payload = {
+        title: title.trim(),
+        description: description.trim(),
         price: Number(price),
         categoryId: Number(categoryId),
         images: imageUrls,
-      });
+      };
+
+      console.log("[NewProductModal] Payload:", payload);
+
+      const newProduct = await createProduct(payload);
 
       onProductCreated(newProduct);
       onClose();

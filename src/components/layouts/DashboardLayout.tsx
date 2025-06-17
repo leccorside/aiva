@@ -14,6 +14,8 @@ import {
   DollarSign,
   HelpCircle,
   LogOut,
+  Layers2,
+  Users,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -37,8 +39,18 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     { href: "/dashboard", label: "Dashboard", icon: <Home size={18} /> },
     {
       href: "/dashboard/products",
-      label: "Products",
+      label: "Produtos",
       icon: <ShoppingBag size={18} />,
+    },
+    {
+      href: "/dashboard/categories",
+      label: "Categorias",
+      icon: <Layers2 size={18} />,
+    },
+    {
+      href: "/dashboard/users",
+      label: "Usuários",
+      icon: <Users size={18} />,
     },
   ];
 
