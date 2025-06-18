@@ -34,31 +34,12 @@ export default function DashboardPage() {
       <div
         className={`mx-auto mt-10 rounded-lg shadow-md p-6 ${containerClass}`}
       >
-        <h1 className="text-2xl font-bold mb-2">Área protegida</h1>
+        <h1 className="text-2xl font-bold mb-2">
+          Seja Bem-Vindo(a) a Área protegida
+        </h1>
         <p className="mb-4 text-sm">
           Você está logado e pode acessar o dashboard.
         </p>
-
-        <Button
-          onClick={() => setShowConfirm(true)}
-          className={`text-sm ${logoutBtnClass}`}
-        >
-          Sair
-        </Button>
-
-        <div className={`mt-6 rounded-md p-4 ${infoBoxClass}`}>
-          Tema dinâmico!
-        </div>
-
-        <ConfirmModal
-          open={showConfirm}
-          title="Deseja sair da conta?"
-          description="Você será desconectado da aplicação."
-          confirmText="Sim, sair"
-          cancelText="Cancelar"
-          onConfirm={handleLogout}
-          onCancel={() => setShowConfirm(false)}
-        />
       </div>
     </ProtectedRoute>
   );
