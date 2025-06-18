@@ -5,7 +5,8 @@ interface LoginResponse {
   refresh_token?: string;
 }
 
-interface UserProfile {
+export interface UserProfile {
+  id: number;
   name: string;
   email: string;
   role?: string;
@@ -48,5 +49,5 @@ export async function getProfile(token: string): Promise<UserProfile> {
     throw new Error("Erro ao buscar perfil");
   }
 
-  return res.json(); // deve conter { name, email, role, avatar }
+  return res.json(); // deve conter { id, name, email, role, avatar }
 }

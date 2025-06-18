@@ -4,19 +4,21 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { getToken, saveToken, clearToken } from "@/lib/auth";
 import { login as loginService, getProfile } from "@/services/auth";
 
-interface User {
+export interface User {
+  id: number;
   name: string;
   email: string;
   avatar: string;
   role: string;
 }
 
-interface AuthContextProps {
-  isAuthenticated: boolean;
+export interface AuthContextProps {
+  user: User | null;
   token: string | null;
+  isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
-  user: User | null;
+  setUser: (user: User) => void;
 }
 
 export const AuthContext = createContext<AuthContextProps | undefined>(
@@ -45,10 +47,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const profile = await getProfile(access_token);
       const userData: User = {
+        id: profile.id,
         name: profile.name,
         email: profile.email,
-        avatar: profile.avatar || "", // valor padrão
-        role: profile.role || "user", // valor padrão
+        avatar: profile.avatar || "",
+        role: profile.role || "user",
       };
       localStorage.setItem("user", JSON.stringify(userData));
       setUser(userData);
@@ -72,6 +75,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         login,
         logout,
         user,
+        setUser,
       }}
     >
       {children}

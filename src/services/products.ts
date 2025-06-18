@@ -8,7 +8,7 @@ export interface CategoryType {
 }
 
 export async function getProducts(page = 1, limit = 10) {
-  const totalLimit = 50;
+  const totalLimit = 250;
   const totalRes = await fetch(
     `${API_BASE_URL}/products?offset=0&limit=${totalLimit}`
   );

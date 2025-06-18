@@ -1,64 +1,79 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { getUsers } from "@/services/users";
+import { getProducts } from "@/services/products";
+import { getCategories } from "@/services/categories";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import { Button } from "@/components/ui/Button";
-import { ConfirmModal } from "@/components/ui/ConfirmModal";
-import { useAuth } from "@/hooks/useAuth";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { useTheme } from "next-themes";
+import { Users, ShoppingBag, Layers2 } from "lucide-react";
 
 export default function DashboardPage() {
-  const { logout } = useAuth();
-  const router = useRouter();
   const { theme } = useTheme();
-  const [showConfirm, setShowConfirm] = useState(false);
+  const isLight = theme === "light";
 
-  function handleLogout() {
-    logout();
-    router.push("/login");
-  }
+  const [userCount, setUserCount] = useState(0);
+  const [productCount, setProductCount] = useState(0);
+  const [categoryCount, setCategoryCount] = useState(0);
 
-  const containerClass =
-    theme === "light" ? "bg-white text-gray-800" : "bg-gray-800 text-gray-100";
+  useEffect(() => {
+    async function fetchData() {
+      const users = await getUsers(1, 1000);
+      const products = await getProducts(1, 1000);
+      const categories = await getCategories();
 
-  const infoBoxClass =
-    theme === "light"
-      ? "bg-gray-100 text-gray-700 border"
-      : "bg-gray-900 text-white border border-gray-700";
+      setUserCount(users.length);
+      setProductCount(products.length);
+      setCategoryCount(categories.length);
+    }
 
-  const logoutBtnClass = theme === "light" ? "text-red-600" : "text-red-400";
+    fetchData();
+  }, []);
+
+  const cardStyle = `rounded-lg border shadow-md p-6 flex-1 text-center transition ${
+    isLight
+      ? "bg-white border-gray-200 text-gray-900"
+      : "bg-gray-800 border-gray-700 text-white"
+  }`;
+
+  const iconBox = (bg: string, Icon: React.ReactNode) => (
+    <div className={`w-10 h-10 flex items-center justify-center rounded ${bg}`}>
+      {Icon}
+    </div>
+  );
 
   return (
     <ProtectedRoute>
-      <div
-        className={`mx-auto mt-10 rounded-lg shadow-md p-6 ${containerClass}`}
-      >
-        <h1 className="text-2xl font-bold mb-2">Área protegida</h1>
-        <p className="mb-4 text-sm">
-          Você está logado e pode acessar o dashboard.
-        </p>
-
-        <Button
-          onClick={() => setShowConfirm(true)}
-          className={`text-sm ${logoutBtnClass}`}
-        >
-          Sair
-        </Button>
-
-        <div className={`mt-6 rounded-md p-4 ${infoBoxClass}`}>
-          Tema dinâmico!
+      <div className="max-w-7xl mx-auto mt-5 px-4">
+        <h1 className="text-2xl font-bold mb-6">Visão Geral</h1>
+      </div>
+      <div className="max-w-7xl mx-auto mt-5 px-4 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className={cardStyle}>
+          <div className="flex items-center gap-4 justify-center">
+            {iconBox("bg-violet-100 text-violet-600", <Users size={20} />)}
+            <span className="text-2xl font-bold">{userCount}</span>
+          </div>
+          <div className="text-sm mt-1">Total de usuários</div>
         </div>
 
-        <ConfirmModal
-          open={showConfirm}
-          title="Deseja sair da conta?"
-          description="Você será desconectado da aplicação."
-          confirmText="Sim, sair"
-          cancelText="Cancelar"
-          onConfirm={handleLogout}
-          onCancel={() => setShowConfirm(false)}
-        />
+        <div className={cardStyle}>
+          <div className="flex items-center gap-4 justify-center">
+            {iconBox(
+              "bg-orange-100 text-orange-600",
+              <ShoppingBag size={20} />
+            )}
+            <span className="text-2xl font-bold">{productCount}</span>
+          </div>
+          <div className="text-sm mt-1">Total de produtos</div>
+        </div>
+
+        <div className={cardStyle}>
+          <div className="flex items-center gap-4 justify-center">
+            {iconBox("bg-red-100 text-red-600", <Layers2 size={20} />)}
+            <span className="text-2xl font-bold">{categoryCount}</span>
+          </div>
+          <div className="text-sm mt-1">Total de categorias</div>
+        </div>
       </div>
     </ProtectedRoute>
   );

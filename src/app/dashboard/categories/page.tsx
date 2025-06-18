@@ -8,7 +8,7 @@ import {
   deleteCategory,
 } from "@/services/categories";
 import { Button } from "@/components/ui/Button";
-import { Edit, Trash } from "lucide-react";
+import { Edit, Trash, Search } from "lucide-react";
 import { useTheme } from "next-themes";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
@@ -30,8 +30,10 @@ function resolveImageUrl(image?: string) {
 
 export default function CategoryManager() {
   const [categories, setCategories] = useState<any[]>([]);
+  const [allCategories, setAllCategories] = useState<any[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [search, setSearch] = useState("");
   const limit = 10;
   const [showModal, setShowModal] = useState(false);
   const [categoryToEdit, setCategoryToEdit] = useState<any | null>(null);
@@ -41,15 +43,22 @@ export default function CategoryManager() {
 
   useEffect(() => {
     fetchCategories();
-  }, [page]);
+  }, []);
+
+  useEffect(() => {
+    const filtered = allCategories.filter((cat) =>
+      cat.name.toLowerCase().includes(search.toLowerCase())
+    );
+    setTotalPages(Math.ceil(filtered.length / limit));
+    const start = (page - 1) * limit;
+    setCategories(filtered.slice(start, start + limit));
+  }, [allCategories, page, search]);
 
   async function fetchCategories() {
     try {
       const data = await getCategories();
       const sorted = data.sort((a: any, b: any) => b.id - a.id);
-      setTotalPages(Math.ceil(sorted.length / limit));
-      const start = (page - 1) * limit;
-      setCategories(sorted.slice(start, start + limit));
+      setAllCategories(sorted);
     } catch (err) {
       console.error("Erro ao buscar categorias", err);
     }
@@ -64,7 +73,7 @@ export default function CategoryManager() {
   return (
     <ProtectedRoute>
       <div className="max-w-7xl mx-auto p-4 sm:p-6">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
           <h1
             className={`text-2xl font-bold ${
               isLight ? "text-gray-900" : "text-white"
@@ -72,9 +81,38 @@ export default function CategoryManager() {
           >
             Categorias
           </h1>
-          <Button size="sm" onClick={() => setShowModal(true)}>
-            + Nova Categoria
-          </Button>
+          <div className="flex items-center gap-4 w-full md:w-auto">
+            <div className="relative w-full md:w-64">
+              <span
+                className={`absolute left-3 top-2.5 ${
+                  isLight ? "text-gray-400" : "text-gray-300"
+                }`}
+              >
+                <Search size={16} />
+              </span>
+              <input
+                className={`pl-9 rounded px-3 py-2 text-sm w-full focus:outline-none focus:ring-2 ${
+                  isLight
+                    ? "border border-gray-300 focus:ring-blue-500 bg-white text-gray-900"
+                    : "border border-gray-600 bg-gray-800 text-white focus:ring-blue-400 placeholder-gray-400"
+                }`}
+                placeholder="Buscar Categoria..."
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(1);
+                }}
+                type="text"
+              />
+            </div>
+            <Button
+              size="sm"
+              className="py-2"
+              onClick={() => setShowModal(true)}
+            >
+              +<span className="hidden md:inline ml-1">Nova Categoria</span>
+            </Button>
+          </div>
         </div>
 
         <div className="grid gap-4">
@@ -111,18 +149,20 @@ export default function CategoryManager() {
           ))}
         </div>
 
-        <div className="mt-6 flex justify-center gap-2">
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-            <Button
-              key={p}
-              size="sm"
-              variant={p === page ? "primary" : "secondary"}
-              onClick={() => setPage(p)}
-            >
-              {p}
-            </Button>
-          ))}
-        </div>
+        {totalPages > 1 && (
+          <div className="mt-6 flex justify-center gap-2">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+              <Button
+                key={p}
+                size="sm"
+                variant={p === page ? "primary" : "secondary"}
+                onClick={() => setPage(p)}
+              >
+                {p}
+              </Button>
+            ))}
+          </div>
+        )}
 
         {(showModal || categoryToEdit) && (
           <CategoryModal
@@ -131,7 +171,7 @@ export default function CategoryManager() {
               setShowModal(false);
               setCategoryToEdit(null);
             }}
-            onCategorySaved={(saved) => {
+            onCategorySaved={() => {
               setShowModal(false);
               setCategoryToEdit(null);
               fetchCategories();

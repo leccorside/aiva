@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   Menu,
@@ -10,9 +10,6 @@ import {
   Sun,
   Moon,
   User,
-  Settings,
-  DollarSign,
-  HelpCircle,
   LogOut,
   Layers2,
   Users,
@@ -32,6 +29,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const { user, logout } = useAuth();
   const router = useRouter();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   const isLight = theme === "light";
 
@@ -47,11 +45,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       label: "Categorias",
       icon: <Layers2 size={18} />,
     },
-    {
-      href: "/dashboard/users",
-      label: "Usuários",
-      icon: <Users size={18} />,
-    },
+    { href: "/dashboard/users", label: "Usuários", icon: <Users size={18} /> },
   ];
 
   const [showConfirm, setShowConfirm] = useState(false);
@@ -60,6 +54,31 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     logout();
     router.push("/login");
   }
+
+  function resolveImageUrl(image?: string) {
+    if (!image) return "/img/placeholder.jpg";
+    const filename = image.split("/").pop();
+    return image.includes("/api/v1/files/") ? `/api/proxy/${filename}` : image;
+  }
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        userMenuRef.current &&
+        !userMenuRef.current.contains(event.target as Node)
+      ) {
+        setUserMenuOpen(false);
+      }
+    }
+
+    if (userMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [userMenuOpen]);
 
   return (
     <div
@@ -78,13 +97,17 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         }`}
       >
         <div className="flex items-center justify-between p-4 lg:hidden">
-          <span className="text-lg font-bold">Menu</span>
+          <span className="text-lg font-bold"></span>
           <button onClick={() => setSidebarOpen(false)}>
             <X size={20} />
           </button>
         </div>
 
         <nav className="mt-4 space-y-1 px-4">
+          <div className="flex justify-center items-center my-4">
+            <img src="/img/logo.svg" alt="Logo" className="w-20" />
+          </div>
+
           {menu.map(({ href, label, icon }) => (
             <Link
               key={href}
@@ -110,21 +133,19 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         {/* Topbar */}
         <header
           className={`flex h-16 items-center justify-between px-4 shadow-sm
-    ${
-      isLight
-        ? "bg-white border-b border-gray-200 text-black"
-        : "bg-gray-800 border-b border-gray-700 text-white"
-    }`}
+          ${
+            isLight
+              ? "bg-white border-b border-gray-200 text-black"
+              : "bg-gray-800 border-b border-gray-700 text-white"
+          }`}
         >
           <button className="lg:hidden" onClick={() => setSidebarOpen(true)}>
             <Menu size={20} />
           </button>
 
-          {/* Espaço flexível para empurrar o conteúdo para a direita */}
           <div className="flex-1" />
 
           <div className="relative flex items-center gap-3">
-            {/* Theme toggle */}
             <button
               onClick={() => setTheme(theme === "light" ? "dark" : "light")}
               className={`p-2 rounded transition hover:opacity-80 ${
@@ -134,11 +155,13 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
             </button>
 
-            <div className="relative">
+            <div className="relative" ref={userMenuRef}>
               <button onClick={() => setUserMenuOpen(!userMenuOpen)}>
                 <img
-                  src={user?.avatar || "https://i.pravatar.cc/40"}
-                  alt="avatar"
+                  src={resolveImageUrl(
+                    user?.avatar || "https://i.pravatar.cc/70"
+                  )}
+                  alt={user?.name}
                   className="w-8 h-8 rounded-full border"
                 />
               </button>
@@ -162,7 +185,18 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
                   <ul className="text-sm">
                     <li>
-                      <button className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                      <button
+                        onClick={() => {
+                          setUserMenuOpen(false); // ← fecha o menu
+                          router.push("/dashboard/perfil");
+                        }}
+                        className={`w-full flex items-center cursor-pointer gap-3 rounded px-3 py-2 text-sm font-medium
+                ${
+                  isLight
+                    ? "text-gray-700 hover:bg-gray-100"
+                    : "text-white hover:bg-gray-700"
+                }`}
+                      >
                         <User size={16} /> Perfil
                       </button>
                     </li>
@@ -171,7 +205,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                   <div className="px-4 py-2">
                     <button
                       onClick={() => setShowConfirm(true)}
-                      className="w-full flex items-center justify-center gap-2 text-sm bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                      className="w-full flex items-center cursor-pointer justify-center gap-2 text-sm bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
                     >
                       Logout <LogOut size={14} />
                     </button>

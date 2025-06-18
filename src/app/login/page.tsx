@@ -1,11 +1,12 @@
 "use client";
 
-import { useAuth } from "@/hooks/useAuth";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
+
+import { useAuth } from "@/hooks/useAuth";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import { useTheme } from "next-themes";
 
 export default function LoginPage() {
   const { isAuthenticated, login } = useAuth();
@@ -13,29 +14,38 @@ export default function LoginPage() {
   const { theme } = useTheme();
   const isLight = theme === "light";
 
+  /* ───────────── state ───────────── */
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  // ✅ Redirecionar para /dashboard se já estiver autenticado
+  /* ─────────── redirect if logged ─────────── */
   useEffect(() => {
-    if (isAuthenticated) {
-      router.replace("/dashboard");
-    }
+    if (isAuthenticated) router.replace("/dashboard");
   }, [isAuthenticated, router]);
 
+  /* ─────────── handlers ─────────── */
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+    setLoading(true);
 
     try {
-      await login(email, password);
-      router.push("/dashboard");
-    } catch {
+      await login(email.trim(), password);
+      /*   
+         Não precisamos fazer router.push aqui: quando
+         `login()` completa, `isAuthenticated` vira true
+         e o efeito acima redireciona.
+      */
+    } catch (err) {
       setError("Email ou senha inválidos");
+    } finally {
+      setLoading(false);
     }
   }
 
+  /* ─────────── UI ─────────── */
   return (
     <div
       className={`max-w-sm mx-auto mt-20 p-6 rounded shadow transition-colors ${
@@ -44,23 +54,37 @@ export default function LoginPage() {
           : "bg-gray-800 text-gray-100 border border-gray-700"
       }`}
     >
-      <h2 className="text-xl font-bold mb-4">Login</h2>
+      {/* logo */}
+      <div className="flex justify-center my-4">
+        <img src="/img/logo.svg" alt="Logo" className="w-20" />
+      </div>
+
+      <h2 className="text-xl font-bold mb-4 text-center">Faça login</h2>
+
       <form onSubmit={handleLogin} className="space-y-4">
         <Input
           placeholder="Email"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          required
         />
         <Input
           placeholder="Senha"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          required
         />
-        <Button type="submit">Entrar</Button>
+
+        <Button type="submit" disabled={loading} className="w-full">
+          {loading ? "Entrando…" : "Entrar"}
+        </Button>
+
         {error && (
-          <p className="text-red-500 dark:text-red-400 text-sm">{error}</p>
+          <p className="text-red-500 dark:text-red-400 text-sm text-center">
+            {error}
+          </p>
         )}
       </form>
     </div>
