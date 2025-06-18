@@ -13,7 +13,7 @@ export type UserType = {
 
 // Buscar usuários com paginação
 export async function getUsers(page = 1, limit = 10) {
-  const totalLimit = 30;
+  const totalLimit = 250;
   const totalRes = await fetch(
     `${API_BASE_URL}/users?offset=0&limit=${totalLimit}`
   );
@@ -91,6 +91,46 @@ export async function deleteUser(id: number) {
   });
 
   if (!res.ok) throw new Error("Erro ao deletar usuário");
+
+  return res.json();
+}
+
+// Atualizar perfil
+export async function updateUserProfile(data: {
+  name: string;
+  email: string;
+  role: string;
+  avatar: string;
+  password?: string;
+}) {
+  const token = getToken();
+
+  // Remover campos vazios ou undefined
+  const payload: any = {
+    name: data.name,
+    email: data.email,
+    role: data.role,
+    avatar: data.avatar,
+  };
+
+  if (data.password?.trim()) {
+    payload.password = data.password;
+  }
+
+  const res = await fetch(`${API_BASE_URL}/users`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json();
+    console.error("Detalhes do erro:", errorData);
+    throw new Error("Erro ao atualizar perfil");
+  }
 
   return res.json();
 }
