@@ -33,11 +33,6 @@ export default function LoginPage() {
 
     try {
       await login(email.trim(), password);
-      /*   
-         Não precisamos fazer router.push aqui: quando
-         `login()` completa, `isAuthenticated` vira true
-         e o efeito acima redireciona.
-      */
     } catch (err) {
       setError("Email ou senha inválidos");
     } finally {
@@ -80,6 +75,18 @@ export default function LoginPage() {
         <Button type="submit" disabled={loading} className="w-full">
           {loading ? "Entrando…" : "Entrar"}
         </Button>
+
+        <div className="text-xl mb-4 text-center">
+          <a
+            onClick={() => {
+              router.push("/register");
+            }}
+            className={`w-full flex items-center cursor-pointer gap-3 rounded px-3 py-2 text-sm font-medium
+                ${isLight ? "text-gray-700" : "text-white"}`}
+          >
+            Registre-se
+          </a>
+        </div>
 
         {error && (
           <p className="text-red-500 dark:text-red-400 text-sm text-center">
