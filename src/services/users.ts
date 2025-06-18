@@ -52,6 +52,27 @@ export async function createUser(data: {
   return res.json();
 }
 
+//Registro de usuário
+export async function registerUser(data: {
+  name: string;
+  email: string;
+  role: string;
+  password: string;
+  avatar?: string;
+}) {
+  const res = await fetch(`${API_BASE_URL}/users`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) throw new Error("Erro ao criar usuário");
+
+  return res.json();
+}
+
 // Editar usuário existente
 export async function updateUser(
   id: number,
