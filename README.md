@@ -56,9 +56,17 @@ Instale as dependências do projeto
 npm install
 ```
 
----
+Atualize o arquivo .env com a url da API
 
-## 🖥️ Instalação no Servidor
+```bash
+NEXT_PUBLIC_API_BASE_URL=https://api.escuelajs.co/api/v1
+```
+
+Rode o projeto
+
+```bash
+npm run dev
+```
 
 ---
 
@@ -74,20 +82,52 @@ Outro ponto decisivo é a excelente experiência de desenvolvimento que o Next.j
 
 ## 🔐 Funcionalidades
 
+- CRUD Produtos, Usuários e Categorias
+- Campo de Pesquisa
+- Edição de dados do usuário logado no Perfil
+- Níveis de acesso Admin com acesso ao menu "Usuário", e Custumer sem acesso a esse menu.
+
 ---
 
-## 📦 Requisitos
+## 👤 Usuário de Teste
 
----
+email:
 
-## 👤 Usuários de Teste
+```bash
+admin@mail.com
+```
 
-email: admin@mail.com
-password: admin123
+password:
+
+```bash
+admin123
+```
 
 ---
 
 ## 📌 Observações
+
+Para acessar o projeto no Vercel acesse o link abaixo:
+
+```bash
+npm run dev
+```
+
+---
+
+## 📌 Teste
+
+Apenas Jest
+
+```bash
+npx jest
+```
+
+Apenas E2E Playwright
+
+```bash
+npx playwright test
+```
 
 ---
 

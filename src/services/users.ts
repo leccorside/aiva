@@ -65,7 +65,10 @@ export async function registerUser(data: {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(data),
+    body: JSON.stringify({
+      ...data,
+      avatar: data.avatar || "https://i.pravatar.cc/70", // aplica valor padrão
+    }),
   });
 
   if (!res.ok) throw new Error("Erro ao criar usuário");
