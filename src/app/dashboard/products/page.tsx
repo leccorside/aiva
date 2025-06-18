@@ -17,11 +17,11 @@ import { ConfirmModal } from "@/components/ui/ConfirmModal";
 
 export default function ProductManager() {
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [products, setProducts] = useState<any[]>([]);
   const [allProducts, setAllProducts] = useState<any[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
   const [productToEdit, setProductToEdit] = useState<any | null>(null);
   const [productToDelete, setProductToDelete] = useState<any | null>(null);
@@ -32,17 +32,27 @@ export default function ProductManager() {
   useEffect(() => {
     (async () => {
       const all = await getProducts(1, 1000);
-      const total = await getTotalProductsCount();
-      setAllProducts(all);
-      setTotalPages(Math.ceil(total / limit));
+      const sorted = all.sort((a: any, b: any) => b.id - a.id); // mais recentes primeiro
+      setAllProducts(sorted);
+      setSearch(""); // reseta busca
     })();
   }, []);
 
   useEffect(() => {
+    const filtered = allProducts.filter(
+      (p) =>
+        p.title.toLowerCase().includes(search.toLowerCase()) ||
+        p.description.toLowerCase().includes(search.toLowerCase())
+    );
+    setFilteredProducts(filtered);
+    setPage(1);
+  }, [search, allProducts]);
+
+  useEffect(() => {
     const start = (page - 1) * limit;
     const end = start + limit;
-    setProducts(allProducts.slice(start, end));
-  }, [page, allProducts]);
+    setProducts(filteredProducts.slice(start, end));
+  }, [page, filteredProducts]);
 
   const truncate = (text: string, maxWords = 6) =>
     text.split(" ").slice(0, maxWords).join(" ") + "...";
@@ -54,12 +64,6 @@ export default function ProductManager() {
           '<mark class="bg-yellow-200">$1</mark>'
         )
       : text;
-
-  const filtered = products.filter(
-    (p: any) =>
-      p.title.toLowerCase().includes(search.toLowerCase()) ||
-      p.description.toLowerCase().includes(search.toLowerCase())
-  );
 
   function resolveImageUrl(image?: string) {
     if (!image) return "/img/placeholder.jpg";
@@ -88,7 +92,7 @@ export default function ProductManager() {
               isLight ? "text-gray-900" : "text-white"
             }`}
           >
-            Products
+            Produtos
           </h1>
           <div className="flex items-center gap-4 w-full md:w-auto">
             <div className="relative w-full md:w-64">
@@ -107,10 +111,7 @@ export default function ProductManager() {
                 }`}
                 placeholder="Buscar Produto..."
                 value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setPage(1);
-                }}
+                onChange={(e) => setSearch(e.target.value)}
                 type="text"
               />
             </div>
@@ -125,7 +126,7 @@ export default function ProductManager() {
         </div>
 
         <div className="grid gap-4">
-          {filtered.map((product: any) => (
+          {products.map((product: any) => (
             <div
               key={product.id}
               className={`rounded-md border shadow-md p-4 transition grid grid-cols-1 sm:grid-cols-3 gap-4 ${
@@ -150,7 +151,7 @@ export default function ProductManager() {
                   <div
                     className="text-sm text-gray-500"
                     dangerouslySetInnerHTML={{
-                      __html: highlight(truncate(product.description, 6)),
+                      __html: highlight(truncate(product.description)),
                     }}
                   />
                 </div>
@@ -193,9 +194,12 @@ export default function ProductManager() {
           ))}
         </div>
 
-        {totalPages > 1 && (
+        {Math.ceil(filteredProducts.length / limit) > 1 && (
           <div className="mt-6 flex justify-center gap-2">
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+            {Array.from(
+              { length: Math.ceil(filteredProducts.length / limit) },
+              (_, i) => i + 1
+            ).map((p) => (
               <Button
                 key={p}
                 size="sm"

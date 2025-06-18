@@ -12,8 +12,9 @@ import UserModal from "@/components/modals/UserModal";
 export default function UserManager() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
-  const [users, setUsers] = useState<any[]>([]);
   const [allUsers, setAllUsers] = useState<any[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [selectedUser, setSelectedUser] = useState<any | null>(null);
   const [userToEdit, setUserToEdit] = useState<any | null>(null);
   const [userToDelete, setUserToDelete] = useState<any | null>(null);
@@ -24,16 +25,26 @@ export default function UserManager() {
 
   useEffect(() => {
     (async () => {
-      const fetched = await getUsers(1, 1000);
+      const fetched = await getUsers(1, 1000); // busca todos
       setAllUsers(fetched);
     })();
   }, []);
 
   useEffect(() => {
+    const filtered = allUsers.filter(
+      (u: any) =>
+        u.name.toLowerCase().includes(search.toLowerCase()) ||
+        u.email.toLowerCase().includes(search.toLowerCase())
+    );
+    setFilteredUsers(filtered);
+    setPage(1); // resetar para página 1 ao buscar
+  }, [search, allUsers]);
+
+  useEffect(() => {
     const start = (page - 1) * limit;
     const end = start + limit;
-    setUsers(allUsers.slice(start, end));
-  }, [page, allUsers]);
+    setUsers(filteredUsers.slice(start, end));
+  }, [page, filteredUsers]);
 
   const highlight = (text: string) =>
     search
@@ -42,12 +53,6 @@ export default function UserManager() {
           '<mark class="bg-yellow-200">$1</mark>'
         )
       : text;
-
-  const filtered = users.filter(
-    (u: any) =>
-      u.name.toLowerCase().includes(search.toLowerCase()) ||
-      u.email.toLowerCase().includes(search.toLowerCase())
-  );
 
   function resolveImageUrl(image?: string) {
     if (!image) return "https://i.pravatar.cc/70";
@@ -95,10 +100,7 @@ export default function UserManager() {
                 }`}
                 placeholder="Buscar Usuário..."
                 value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setPage(1);
-                }}
+                onChange={(e) => setSearch(e.target.value)}
                 type="text"
               />
             </div>
@@ -113,7 +115,7 @@ export default function UserManager() {
         </div>
 
         <div className="grid gap-4">
-          {filtered.map((user: any) => (
+          {users.map((user: any) => (
             <div
               key={user.id}
               className={`rounded-md border shadow-md p-4 flex justify-between items-center transition gap-4 ${
@@ -124,9 +126,7 @@ export default function UserManager() {
             >
               <div className="flex items-center gap-4">
                 <img
-                  src={resolveImageUrl(
-                    user?.avatar || "https://i.pravatar.cc/70"
-                  )}
+                  src={resolveImageUrl(user?.avatar)}
                   alt={user.name}
                   className="w-12 h-12 object-cover rounded-full border"
                 />
@@ -162,10 +162,10 @@ export default function UserManager() {
           ))}
         </div>
 
-        {Math.ceil(allUsers.length / limit) > 1 && (
+        {Math.ceil(filteredUsers.length / limit) > 1 && (
           <div className="mt-6 flex justify-center gap-2">
             {Array.from(
-              { length: Math.ceil(allUsers.length / limit) },
+              { length: Math.ceil(filteredUsers.length / limit) },
               (_, i) => i + 1
             ).map((p) => (
               <Button
