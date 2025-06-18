@@ -125,6 +125,7 @@ export default function DashboardPage() {
                 <input
                   type="text"
                   value={name}
+                  placeholder="Nome"
                   onChange={(e) => setName(e.target.value)}
                   className={`w-full rounded px-3 py-2 border transition ${
                     isLight
@@ -138,6 +139,7 @@ export default function DashboardPage() {
                 <input
                   type="email"
                   value={email}
+                  placeholder="E-mail"
                   onChange={(e) => setEmail(e.target.value)}
                   className={`w-full rounded px-3 py-2 border transition ${
                     isLight
@@ -151,6 +153,7 @@ export default function DashboardPage() {
                 <input
                   type="password"
                   value={password}
+                  placeholder="Deixe em branco se não quiser alterar"
                   onChange={(e) => setPassword(e.target.value)}
                   className={`w-full rounded px-3 py-2 border transition ${
                     isLight

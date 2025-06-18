@@ -108,23 +108,27 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             <img src="/img/logo.svg" alt="Logo" className="w-20" />
           </div>
 
-          {menu.map(({ href, label, icon }) => (
-            <Link
-              key={href}
-              href={href}
-              className={`flex items-center gap-3 rounded px-3 py-2 text-sm font-medium
-                ${
-                  pathname === href
-                    ? "bg-gray-100 text-blue-600"
-                    : isLight
-                    ? "text-gray-700 hover:bg-gray-100"
-                    : "text-white hover:bg-gray-700"
-                }`}
-              onClick={() => setSidebarOpen(false)}
-            >
-              {icon} {label}
-            </Link>
-          ))}
+          {menu
+            .filter(
+              (item) => item.label !== "Usuários" || user?.role === "admin"
+            )
+            .map(({ href, label, icon }) => (
+              <Link
+                key={href}
+                href={href}
+                className={`flex items-center gap-3 rounded px-3 py-2 text-sm font-medium
+        ${
+          pathname === href
+            ? "bg-gray-100 text-blue-600"
+            : isLight
+            ? "text-gray-700 hover:bg-gray-100"
+            : "text-white hover:bg-gray-700"
+        }`}
+                onClick={() => setSidebarOpen(false)}
+              >
+                {icon} {label}
+              </Link>
+            ))}
         </nav>
       </aside>
 

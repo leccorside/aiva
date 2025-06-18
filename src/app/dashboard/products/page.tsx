@@ -14,6 +14,7 @@ import ProductDetailsModal from "@/components/modals/ProductDetailsModal";
 import EditProductModal from "@/components/modals/EditProductModal";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { getCategories } from "@/services/categories";
 
 export default function ProductManager() {
   const [page, setPage] = useState(1);
@@ -25,6 +26,9 @@ export default function ProductManager() {
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
   const [productToEdit, setProductToEdit] = useState<any | null>(null);
   const [productToDelete, setProductToDelete] = useState<any | null>(null);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [priceRange, setPriceRange] = useState<number>(1000);
   const limit = 10;
   const { theme } = useTheme();
   const isLight = theme === "light";
@@ -32,21 +36,26 @@ export default function ProductManager() {
   useEffect(() => {
     (async () => {
       const all = await getProducts(1, 1000);
-      const sorted = all.sort((a: any, b: any) => b.id - a.id); // mais recentes primeiro
+      const sorted = all.sort((a: any, b: any) => b.id - a.id);
       setAllProducts(sorted);
-      setSearch(""); // reseta busca
+      const cats = await getCategories();
+      setCategories(cats);
     })();
   }, []);
 
   useEffect(() => {
-    const filtered = allProducts.filter(
-      (p) =>
+    const filtered = allProducts.filter((p) => {
+      const matchesSearch =
         p.title.toLowerCase().includes(search.toLowerCase()) ||
-        p.description.toLowerCase().includes(search.toLowerCase())
-    );
+        p.description.toLowerCase().includes(search.toLowerCase());
+      const matchesCategory =
+        !selectedCategory || p.category?.name === selectedCategory;
+      const matchesPrice = p.price <= priceRange;
+      return matchesSearch && matchesCategory && matchesPrice;
+    });
     setFilteredProducts(filtered);
     setPage(1);
-  }, [search, allProducts]);
+  }, [search, selectedCategory, priceRange, allProducts]);
 
   useEffect(() => {
     const start = (page - 1) * limit;
@@ -122,6 +131,36 @@ export default function ProductManager() {
             >
               +<span className="hidden md:inline ml-1">Novo Produto</span>
             </Button>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-4 mb-6">
+          <select
+            className={`w-full md:w-auto p-2 rounded border text-sm ${
+              isLight
+                ? "bg-white text-gray-900 border-gray-300"
+                : "bg-gray-900 text-white border-gray-600"
+            }`}
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+          >
+            <option value="">Todas as categorias</option>
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.name}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+
+          <div className="flex items-center gap-2 w-full md:w-auto p-2 text-sm">
+            <label className="text-sm">Preço até R$ {priceRange}</label>
+            <input
+              type="range"
+              min={0}
+              max={1000}
+              value={priceRange}
+              onChange={(e) => setPriceRange(Number(e.target.value))}
+            />
           </div>
         </div>
 
