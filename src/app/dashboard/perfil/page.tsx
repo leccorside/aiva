@@ -117,15 +117,6 @@ export default function DashboardPage() {
                     : "bg-gray-900 text-white border-gray-600"
                 }`}
               />
-              {imagePreview && (
-                <button
-                  type="button"
-                  onClick={handleRemoveImage}
-                  className="bg-red-600 text-white rounded-full px-2 text-xs mt-2"
-                >
-                  Remover
-                </button>
-              )}
             </div>
 
             <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
@@ -187,9 +178,6 @@ export default function DashboardPage() {
           </div>
 
           <div className="flex flex-col sm:flex-row justify-end items-center mt-6 gap-4">
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Salvando..." : "Salvar Alterações"}
-            </Button>
             {statusMessage && (
               <span
                 className={`text-sm ${
@@ -201,6 +189,9 @@ export default function DashboardPage() {
                 {statusMessage}
               </span>
             )}
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Salvando..." : "Salvar Alterações"}
+            </Button>
           </div>
         </form>
       </div>
