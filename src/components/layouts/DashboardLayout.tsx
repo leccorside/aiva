@@ -186,7 +186,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                   <ul className="text-sm">
                     <li>
                       <button
-                        onClick={() => router.push("/dashboard/perfil")}
+                        onClick={() => {
+                          setUserMenuOpen(false); // ← fecha o menu
+                          router.push("/dashboard/perfil");
+                        }}
                         className="w-full flex items-center cursor-pointer gap-2 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
                       >
                         <User size={16} /> Perfil
