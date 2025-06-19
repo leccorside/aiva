@@ -1,17 +1,16 @@
 "use client";
 
 import Image, { ImageProps } from "next/image";
-import { useState, ImgHTMLAttributes } from "react";
+import { useState } from "react";
 
 /**
- * Mostra a imagem via `<Image>` sempre que possível.
- * – Se a `src` começar com "blob:" usamos `<img>` (o next/image não suporta blob).
- * – Quando ocorrer erro de carregamento cai para o `fallbackSrc`.
+ * Componente que tenta renderizar a imagem com Next/Image,
+ * mas usa <img> em caso de erro ou se for blob.
  */
 interface Props extends Omit<ImageProps, "src" | "placeholder"> {
   /** URL da imagem principal */
   src: string;
-  /** Caso a principal falhe ⇒ usa esta (padrão placeholder genérico) */
+  /** Imagem de fallback, usada se a principal falhar */
   fallbackSrc?: string;
   /** Alt obrigatória para acessibilidade */
   alt: string;
@@ -25,32 +24,25 @@ export default function ImageWithFallback({
 }: Props) {
   const [errored, setErrored] = useState(false);
 
-  // Extrai os atributos válidos para <img>
-  const imgProps = rest as ImgHTMLAttributes<HTMLImageElement>;
+  const handleError = () => setErrored(true);
 
-  // Caso seja um blob, next/image não funciona – use <img>
-  if (src.startsWith("blob:")) {
+  // Renderiza com <img> se for blob ou houve erro
+  const shouldUseImgTag = errored || src.startsWith("blob:");
+
+  if (shouldUseImgTag) {
     // eslint-disable-next-line @next/next/no-img-element
     return (
-      <img src={src} alt={alt} onError={() => setErrored(true)} {...imgProps} />
+      <img
+        src={errored ? fallbackSrc : src}
+        alt={alt}
+        onError={handleError}
+        {...(rest as React.ImgHTMLAttributes<HTMLImageElement>)}
+      />
     );
   }
 
-  // Quando ocorreu erro anteriormente, renderiza o fallback (via <img> simples)
-  if (errored) {
-    // eslint-disable-next-line @next/next/no-img-element
-    return <img src={fallbackSrc} alt={alt} {...imgProps} />;
-  }
-
-  // Fluxo normal com next/image
+  // Fluxo padrão com next/image
   return (
-    <Image
-      src={src}
-      alt={alt}
-      onError={() => setErrored(true)}
-      // prioridade de carregamento opcional para thumbnails
-      loading="lazy"
-      {...rest}
-    />
+    <Image src={src} alt={alt} onError={handleError} loading="lazy" {...rest} />
   );
 }

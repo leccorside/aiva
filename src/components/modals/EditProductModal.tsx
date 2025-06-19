@@ -86,7 +86,7 @@ export default function EditProductModal({
       // sobrescreve manualmente a categoria baseada na seleção
       const finalProduct = {
         ...updated,
-        category: categories.find((cat) => cat.id === Number(categoryId)),
+        category: categories.find((cat) => cat.id === Number(categoryId))!,
       };
 
       onProductUpdated(finalProduct);
