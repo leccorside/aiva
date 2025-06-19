@@ -57,7 +57,7 @@ export async function registerUser(
     avatar: data.avatar || "https://i.pravatar.cc/70",
   };
 
-  const res = await fetch(`${API_BASE_URL}/users/register`, {
+  const res = await fetch(`${API_BASE_URL}/users`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
