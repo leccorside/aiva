@@ -5,6 +5,7 @@ import { useTheme } from "next-themes";
 import { updateProduct, getCategories, uploadImage } from "@/services/products";
 import type { CategoryType } from "@/services/products";
 import { Button } from "@/components/ui/Button";
+import ImageWithFallback from "../ui/ImageWithFallback";
 
 interface EditProductModalProps {
   product: any;
@@ -178,13 +179,15 @@ export default function EditProductModal({
             <div className="flex flex-wrap gap-4 mt-2">
               {imagePreviews.map((src, index) => (
                 <div key={`existing-${index}`} className="relative">
-                  <img
+                  <ImageWithFallback
                     src={
                       src.includes("/api/v1/files/")
                         ? `/api/proxy/${src.split("/").pop()}`
                         : src
                     }
                     alt={`Imagem existente ${index + 1}`}
+                    width={50}
+                    height={50}
                     className="w-24 h-24 object-cover rounded border"
                   />
                   <button
@@ -198,9 +201,11 @@ export default function EditProductModal({
               ))}
               {imageFiles.map((file, index) => (
                 <div key={`new-${index}`} className="relative">
-                  <img
+                  <ImageWithFallback
                     src={URL.createObjectURL(file)}
                     alt={`Preview ${index + 1}`}
+                    width={50}
+                    height={50}
                     className="w-24 h-24 object-cover rounded border"
                   />
                   <button

@@ -19,10 +19,10 @@ import { useTheme } from "next-themes";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { ConfirmModal } from "../ui/ConfirmModal";
+import ImageWithFallback from "../ui/ImageWithFallback";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
   const pathname = usePathname();
   const { setTheme, theme } = useTheme();
 
@@ -105,7 +105,13 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
         <nav className="mt-4 space-y-1 px-4">
           <div className="flex justify-center items-center my-4">
-            <img src="/img/logo.svg" alt="Logo" className="w-20" />
+            <ImageWithFallback
+              src="/img/logo.svg"
+              alt="Logo"
+              width={100}
+              height={100}
+              className="w-20"
+            />
           </div>
 
           {menu
@@ -161,11 +167,13 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
             <div className="relative" ref={userMenuRef}>
               <button onClick={() => setUserMenuOpen(!userMenuOpen)}>
-                <img
+                <ImageWithFallback
                   src={resolveImageUrl(
                     user?.avatar || "https://i.pravatar.cc/70"
                   )}
-                  alt={user?.name}
+                  alt="Avatar"
+                  width={50}
+                  height={50}
                   className="w-8 h-8 rounded-full border"
                 />
               </button>

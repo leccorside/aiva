@@ -3,21 +3,29 @@
 import { useEffect, useState } from "react";
 import { getUsers, deleteUser } from "@/services/users";
 import { Button } from "@/components/ui/Button";
-import { Eye, Edit, Trash, Search } from "lucide-react";
+import { Edit, Trash, Search } from "lucide-react";
 import { useTheme } from "next-themes";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import UserModal from "@/components/modals/UserModal";
+import ImageWithFallback from "@/components/ui/ImageWithFallback";
+
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  avatar?: string;
+}
 
 export default function UserManager() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
-  const [allUsers, setAllUsers] = useState<any[]>([]);
-  const [filteredUsers, setFilteredUsers] = useState<any[]>([]);
-  const [users, setUsers] = useState<any[]>([]);
-  const [selectedUser, setSelectedUser] = useState<any | null>(null);
-  const [userToEdit, setUserToEdit] = useState<any | null>(null);
-  const [userToDelete, setUserToDelete] = useState<any | null>(null);
+  const [allUsers, setAllUsers] = useState<User[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [userToEdit, setUserToEdit] = useState<User | null>(null);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [showModal, setShowModal] = useState(false);
   const limit = 10;
   const { theme } = useTheme();
@@ -25,19 +33,19 @@ export default function UserManager() {
 
   useEffect(() => {
     (async () => {
-      const fetched = await getUsers(1, 1000); // busca todos
+      const fetched = await getUsers(1, 1000);
       setAllUsers(fetched);
     })();
   }, []);
 
   useEffect(() => {
     const filtered = allUsers.filter(
-      (u: any) =>
+      (u) =>
         u.name.toLowerCase().includes(search.toLowerCase()) ||
         u.email.toLowerCase().includes(search.toLowerCase())
     );
     setFilteredUsers(filtered);
-    setPage(1); // resetar para página 1 ao buscar
+    setPage(1);
   }, [search, allUsers]);
 
   useEffect(() => {
@@ -115,7 +123,7 @@ export default function UserManager() {
         </div>
 
         <div className="grid gap-4">
-          {users.map((user: any) => (
+          {users.map((user) => (
             <div
               key={user.id}
               className={`rounded-md border shadow-md p-4 flex justify-between items-center transition gap-4 ${
@@ -125,9 +133,11 @@ export default function UserManager() {
               }`}
             >
               <div className="flex items-center gap-4">
-                <img
+                <ImageWithFallback
                   src={resolveImageUrl(user?.avatar)}
                   alt={user.name}
+                  width={50}
+                  height={50}
                   className="w-12 h-12 object-cover rounded-full border"
                 />
                 <div>

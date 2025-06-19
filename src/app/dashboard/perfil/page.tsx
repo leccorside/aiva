@@ -7,6 +7,7 @@ import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
 import { uploadImage } from "@/services/products";
 import { updateUser } from "@/services/users";
+import ImageWithFallback from "@/components/ui/ImageWithFallback";
 
 export default function DashboardPage() {
   const { theme } = useTheme();
@@ -32,11 +33,6 @@ export default function DashboardPage() {
       setImageFile(file);
       setImagePreview(URL.createObjectURL(file));
     }
-  };
-
-  const handleRemoveImage = () => {
-    setImageFile(null);
-    setImagePreview("");
   };
 
   async function handleSubmit(e: React.FormEvent) {
@@ -98,13 +94,15 @@ export default function DashboardPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex flex-col sm:flex-row gap-6 items-start">
             <div className="flex flex-col items-center gap-2">
-              <img
+              <ImageWithFallback
                 src={
                   imagePreview.includes("/api/v1/files/")
                     ? `/api/proxy/${imagePreview.split("/").pop()}`
                     : imagePreview || "/img/placeholder.jpg"
                 }
                 alt="Avatar preview"
+                width={100}
+                height={100}
                 className="w-24 h-24 object-cover rounded border"
               />
               <input

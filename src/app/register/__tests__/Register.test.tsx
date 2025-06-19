@@ -46,7 +46,7 @@ describe("RegisterPage", () => {
           email: "fulano@example.com",
           password: "123456",
           role: "customer",
-          avatar: "https://i.pravatar.cc/70",
+          avatar: "https://i.pravatar.cc/150",
         })
       )
     );

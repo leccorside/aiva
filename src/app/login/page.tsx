@@ -7,6 +7,7 @@ import { useTheme } from "next-themes";
 import { useAuth } from "@/hooks/useAuth";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import ImageWithFallback from "@/components/ui/ImageWithFallback";
 
 export default function LoginPage() {
   const { isAuthenticated, login } = useAuth();
@@ -33,7 +34,7 @@ export default function LoginPage() {
 
     try {
       await login(email.trim(), password);
-    } catch (err) {
+    } catch (error) {
       setError("Email ou senha inválidos");
     } finally {
       setLoading(false);
@@ -51,7 +52,13 @@ export default function LoginPage() {
     >
       {/* logo */}
       <div className="flex justify-center my-4">
-        <img src="/img/logo.svg" alt="Logo" className="w-20" />
+        <ImageWithFallback
+          src="/img/logo.svg"
+          alt="Logo"
+          width={50}
+          height={50}
+          className="w-20"
+        />
       </div>
 
       <h2 className="text-xl font-bold mb-4 text-center">Faça login</h2>

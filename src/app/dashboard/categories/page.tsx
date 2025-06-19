@@ -8,6 +8,14 @@ import { useTheme } from "next-themes";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import CategoryModal from "@/components/modals/CategoryModal";
+import Image from "next/image";
+import ImageWithFallback from "@/components/ui/ImageWithFallback";
+
+type CategoryType = {
+  id: number;
+  name: string;
+  image?: string;
+};
 
 function resolveImageUrl(image?: string) {
   if (!image) return "/img/placeholder.jpg";
@@ -24,15 +32,19 @@ function resolveImageUrl(image?: string) {
 }
 
 export default function CategoryManager() {
-  const [categories, setCategories] = useState<any[]>([]);
-  const [allCategories, setAllCategories] = useState<any[]>([]);
+  const [categories, setCategories] = useState<CategoryType[]>([]);
+  const [allCategories, setAllCategories] = useState<CategoryType[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
   const limit = 10;
   const [showModal, setShowModal] = useState(false);
-  const [categoryToEdit, setCategoryToEdit] = useState<any | null>(null);
-  const [categoryToDelete, setCategoryToDelete] = useState<any | null>(null);
+  const [categoryToEdit, setCategoryToEdit] = useState<CategoryType | null>(
+    null
+  );
+  const [categoryToDelete, setCategoryToDelete] = useState<CategoryType | null>(
+    null
+  );
   const { theme } = useTheme();
   const isLight = theme === "light";
 
@@ -52,7 +64,9 @@ export default function CategoryManager() {
   async function fetchCategories() {
     try {
       const data = await getCategories();
-      const sorted = data.sort((a: any, b: any) => b.id - a.id);
+      const sorted = data.sort(
+        (a: CategoryType, b: CategoryType) => b.id - a.id
+      );
       setAllCategories(sorted);
     } catch (err) {
       console.error("Erro ao buscar categorias", err);
@@ -121,9 +135,11 @@ export default function CategoryManager() {
               }`}
             >
               <div className="flex items-center gap-4">
-                <img
+                <ImageWithFallback
                   src={resolveImageUrl(cat.image)}
                   alt={cat.name}
+                  width={48}
+                  height={48}
                   className="w-12 h-12 object-cover rounded border"
                 />
                 <div className="font-medium text-lg">{cat.name}</div>

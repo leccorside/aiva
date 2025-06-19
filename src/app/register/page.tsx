@@ -7,6 +7,7 @@ import { useTheme } from "next-themes";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { registerUser } from "@/services/users";
+import ImageWithFallback from "@/components/ui/ImageWithFallback";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -33,7 +34,7 @@ export default function RegisterPage() {
         avatar: "https://i.pravatar.cc/70", // ← imagem padrão
       });
       router.push("/login");
-    } catch (err: any) {
+    } catch (error) {
       setError("Erro ao criar conta. Tente novamente.");
     } finally {
       setLoading(false);
@@ -49,7 +50,13 @@ export default function RegisterPage() {
       }`}
     >
       <div className="flex justify-center my-4">
-        <img src="/img/logo.svg" alt="Logo" className="w-20" />
+        <ImageWithFallback
+          src="/img/logo.svg"
+          alt="Logo"
+          width={100}
+          height={100}
+          className="w-20"
+        />
       </div>
 
       <h2 className="text-xl font-bold mb-4 text-center">Criar conta</h2>
