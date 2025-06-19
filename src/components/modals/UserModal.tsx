@@ -58,31 +58,28 @@ export default function UserModal({
         avatar = await uploadImage(imageFile);
       }
 
-      const data: {
-        name: string;
-        email: string;
-        role: string;
-        avatar: string;
-        password?: string;
-      } = {
-        name,
-        email,
-        role,
-        avatar,
-      };
-
-      if (!user) {
+      if (user) {
+        // Edição: sem senha
+        const data = { name, email, role, avatar };
+        const result = await updateUser(user.id, data);
+        onUserSaved(result);
+      } else {
+        // Criação: senha obrigatória
         if (!password) {
           throw new Error("Senha é obrigatória para novo usuário.");
         }
-        data.password = password;
+
+        const data = {
+          name,
+          email,
+          role,
+          avatar,
+          password,
+        };
+
+        const result = await createUser(data);
+        onUserSaved(result);
       }
-
-      const result = user
-        ? await updateUser(user.id, data)
-        : await createUser(data);
-
-      onUserSaved(result);
     } catch (err) {
       console.error("Erro ao salvar usuário", err);
     } finally {
