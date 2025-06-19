@@ -110,7 +110,11 @@ admin123
 Para acessar o projeto no Vercel acesse o link abaixo:
 
 ```bash
-npm run dev
+https://leafy-alfajores-eac4ad.netlify.app
+```
+
+```bash
+https://aiva-kdwyq33sc-johnathans-projects-b4a51b7a.vercel.app/
 ```
 
 ---
