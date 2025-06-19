@@ -34,7 +34,7 @@ export default function RegisterPage() {
         avatar: "https://i.pravatar.cc/70", // ← imagem padrão
       });
       router.push("/login");
-    } catch (error) {
+    } catch {
       setError("Erro ao criar conta. Tente novamente.");
     } finally {
       setLoading(false);

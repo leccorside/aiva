@@ -34,7 +34,7 @@ export default function LoginPage() {
 
     try {
       await login(email.trim(), password);
-    } catch (error) {
+    } catch {
       setError("Email ou senha inválidos");
     } finally {
       setLoading(false);

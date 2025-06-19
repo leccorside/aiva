@@ -7,16 +7,17 @@ import { createUser, updateUser } from "@/services/users";
 import { uploadImage } from "@/services/products";
 import ImageWithFallback from "../ui/ImageWithFallback";
 
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  avatar: string;
+}
 interface UserModalProps {
-  user?: {
-    id: number;
-    name: string;
-    email: string;
-    role: string;
-    avatar: string;
-  } | null;
+  user?: User | null;
   onClose: () => void;
-  onUserSaved: (saved: any) => void;
+  onUserSaved: (saved: User) => void;
 }
 
 export default function UserModal({

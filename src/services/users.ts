@@ -1,6 +1,5 @@
-// services/users.ts
-import { API_BASE_URL } from "@/lib/api";
 import { getToken } from "@/lib/auth";
+import { API_BASE_URL } from "@/lib/api";
 
 export type UserType = {
   id: number;
@@ -11,33 +10,30 @@ export type UserType = {
   password?: string; // caso o backend permita criação/edição de senha
 };
 
+// Tipo para payloads de criação/edição de usuário
+export type UserPayload = Omit<Partial<UserType>, "id">;
+
 // Buscar usuários com paginação
-export async function getUsers(page = 1, limit = 10) {
+export async function getUsers(page = 1, limit = 10): Promise<UserType[]> {
   const totalLimit = 250;
   const totalRes = await fetch(
     `${API_BASE_URL}/users?offset=0&limit=${totalLimit}`
   );
   if (!totalRes.ok) throw new Error("Erro ao buscar os usuários mais recentes");
 
-  const allRecentProducts = await totalRes.json();
+  const allRecentUsers: UserType[] = await totalRes.json();
 
-  const sorted = allRecentProducts.sort((a: any, b: any) => b.id - a.id);
+  // Tipado corretamente, sem usar 'any'
+  const sorted = allRecentUsers.sort((a, b) => b.id - a.id);
   const start = (page - 1) * limit;
-  const paginated = sorted.slice(start, start + limit);
-
-  return paginated;
+  return sorted.slice(start, start + limit);
 }
 
 // Criar novo usuário
-export async function createUser(data: {
-  name: string;
-  email: string;
-  role: string;
-  password: string;
-  avatar?: string;
-}) {
+export async function createUser(
+  data: Required<UserPayload>
+): Promise<UserType> {
   const token = getToken();
-
   const res = await fetch(`${API_BASE_URL}/users`, {
     method: "POST",
     headers: {
@@ -52,26 +48,24 @@ export async function createUser(data: {
   return res.json();
 }
 
-//Registro de usuário
-export async function registerUser(data: {
-  name: string;
-  email: string;
-  role: string;
-  password: string;
-  avatar?: string;
-}) {
-  const res = await fetch(`${API_BASE_URL}/users`, {
+// Registro de usuário (sem token)
+export async function registerUser(
+  data: Required<UserPayload>
+): Promise<UserType> {
+  const payload: UserPayload = {
+    ...data,
+    avatar: data.avatar || "https://i.pravatar.cc/70",
+  };
+
+  const res = await fetch(`${API_BASE_URL}/users/register`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      ...data,
-      avatar: data.avatar || "https://i.pravatar.cc/70", // aplica valor padrão
-    }),
+    body: JSON.stringify(payload),
   });
 
-  if (!res.ok) throw new Error("Erro ao criar usuário");
+  if (!res.ok) throw new Error("Erro ao registrar usuário");
 
   return res.json();
 }
@@ -79,16 +73,9 @@ export async function registerUser(data: {
 // Editar usuário existente
 export async function updateUser(
   id: number,
-  data: {
-    name?: string;
-    email?: string;
-    role?: string;
-    password?: string;
-    avatar?: string;
-  }
-) {
+  data: UserPayload
+): Promise<UserType> {
   const token = getToken();
-
   const res = await fetch(`${API_BASE_URL}/users/${id}`, {
     method: "PUT",
     headers: {
@@ -104,9 +91,8 @@ export async function updateUser(
 }
 
 // Deletar usuário
-export async function deleteUser(id: number) {
+export async function deleteUser(id: number): Promise<void> {
   const token = getToken();
-
   const res = await fetch(`${API_BASE_URL}/users/${id}`, {
     method: "DELETE",
     headers: {
@@ -115,33 +101,28 @@ export async function deleteUser(id: number) {
   });
 
   if (!res.ok) throw new Error("Erro ao deletar usuário");
-
-  return res.json();
 }
 
-// Atualizar perfil
+// Atualizar perfil do usuário logado
 export async function updateUserProfile(data: {
   name: string;
   email: string;
   role: string;
   avatar: string;
   password?: string;
-}) {
+}): Promise<UserType> {
   const token = getToken();
 
-  // Remover campos vazios ou undefined
-  const payload: any = {
+  // Monta payload usando UserPayload
+  const payload: UserPayload = {
     name: data.name,
     email: data.email,
     role: data.role,
     avatar: data.avatar,
+    ...(data.password?.trim() && { password: data.password }),
   };
 
-  if (data.password?.trim()) {
-    payload.password = data.password;
-  }
-
-  const res = await fetch(`${API_BASE_URL}/users`, {
+  const res = await fetch(`${API_BASE_URL}/users/profile`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",

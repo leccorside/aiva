@@ -1,7 +1,7 @@
 "use client";
 
 import Image, { ImageProps } from "next/image";
-import { useState } from "react";
+import { useState, ImgHTMLAttributes } from "react";
 
 /**
  * Mostra a imagem via `<Image>` sempre que possível.
@@ -25,25 +25,21 @@ export default function ImageWithFallback({
 }: Props) {
   const [errored, setErrored] = useState(false);
 
+  // Extrai os atributos válidos para <img>
+  const imgProps = rest as ImgHTMLAttributes<HTMLImageElement>;
+
   // Caso seja um blob, next/image não funciona – use <img>
   if (src.startsWith("blob:")) {
+    // eslint-disable-next-line @next/next/no-img-element
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={src}
-        alt={alt}
-        onError={() => setErrored(true)}
-        {...(rest as any)}
-      />
+      <img src={src} alt={alt} onError={() => setErrored(true)} {...imgProps} />
     );
   }
 
   // Quando ocorreu erro anteriormente, renderiza o fallback (via <img> simples)
   if (errored) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img src={fallbackSrc} alt={alt} {...(rest as any)} />
-    );
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={fallbackSrc} alt={alt} {...imgProps} />;
   }
 
   // Fluxo normal com next/image
