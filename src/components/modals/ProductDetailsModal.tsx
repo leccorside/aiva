@@ -5,6 +5,7 @@ import { useTheme } from "next-themes";
 import { CategoryType } from "@/services/products";
 import { Button } from "@/components/ui/Button";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import ImageWithFallback from "../ui/ImageWithFallback";
 
 interface ProductType {
   id: number;
@@ -82,10 +83,12 @@ export default function ProductDetailsModal({ product, onClose }: Props) {
 
           <div className="flex flex-wrap gap-3 mb-4">
             {product.images.map((img, idx) => (
-              <img
-                key={idx}
+              <ImageWithFallback
                 src={resolveImageUrl(img)}
+                key={idx}
                 alt={product.title}
+                width={50}
+                height={50}
                 className="w-24 h-24 rounded object-cover border cursor-pointer"
                 onClick={() => openLightbox(idx)}
               />
@@ -121,9 +124,11 @@ export default function ProductDetailsModal({ product, onClose }: Props) {
           )}
 
           {/* Imagem ampliada */}
-          <img
+          <ImageWithFallback
             src={resolveImageUrl(product.images[lightboxIndex])}
             alt={`Imagem ${lightboxIndex + 1}`}
+            width={1000}
+            height={1000}
             className="w-full max-w-[1000px] max-h-[90vh] rounded shadow-lg object-contain transition-transform duration-200"
           />
 

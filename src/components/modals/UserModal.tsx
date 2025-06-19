@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { useTheme } from "next-themes";
 import { createUser, updateUser } from "@/services/users";
 import { uploadImage } from "@/services/products";
+import ImageWithFallback from "../ui/ImageWithFallback";
 
 interface UserModalProps {
   user?: {
@@ -156,13 +157,15 @@ export default function UserModal({
 
           {imagePreview && (
             <div className="relative w-fit mt-2">
-              <img
+              <ImageWithFallback
                 src={
                   imagePreview.includes("/api/v1/files/")
                     ? `/api/proxy/${imagePreview.split("/").pop()}`
                     : imagePreview
                 }
                 alt="Avatar preview"
+                width={50}
+                height={50}
                 className="w-24 h-24 object-cover rounded border"
               />
               <button

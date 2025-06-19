@@ -5,6 +5,7 @@ import { useTheme } from "next-themes";
 import { createProduct, getCategories, uploadImage } from "@/services/products";
 import type { CategoryType } from "@/services/products";
 import { Button } from "@/components/ui/Button";
+import ImageWithFallback from "../ui/ImageWithFallback";
 
 interface Props {
   onClose: () => void;
@@ -176,9 +177,11 @@ export default function NewProductModal({ onClose, onProductCreated }: Props) {
             <div className="flex flex-wrap gap-4 mt-2">
               {imagePreviews.map((src, index) => (
                 <div key={index} className="relative">
-                  <img
+                  <ImageWithFallback
                     src={src}
                     alt={`Preview ${index + 1}`}
+                    width={50}
+                    height={50}
                     className="w-24 h-24 object-cover rounded border"
                   />
                   <button

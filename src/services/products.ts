@@ -7,6 +7,15 @@ export interface CategoryType {
   image: string;
 }
 
+export type ProductType = {
+  id: number;
+  title: string;
+  description: string;
+  price: number;
+  category: CategoryType;
+  images: string[];
+};
+
 export async function getProducts(page = 1, limit = 10) {
   const totalLimit = 250;
   const totalRes = await fetch(

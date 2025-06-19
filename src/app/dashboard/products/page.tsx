@@ -1,11 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  getProducts,
-  deleteProduct,
-  getTotalProductsCount,
-} from "@/services/products";
+import { getProducts, deleteProduct } from "@/services/products";
 import { Button } from "@/components/ui/Button";
 import { Eye, Edit, Trash, Search } from "lucide-react";
 import { useTheme } from "next-themes";
@@ -15,18 +11,34 @@ import EditProductModal from "@/components/modals/EditProductModal";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { getCategories } from "@/services/categories";
+import ImageWithFallback from "@/components/ui/ImageWithFallback";
+
+interface Category {
+  id: number;
+  name: string;
+  image?: string;
+}
+
+interface Product {
+  id: number;
+  title: string;
+  description: string;
+  price: number;
+  images: string[];
+  category?: Category;
+}
 
 export default function ProductManager() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [allProducts, setAllProducts] = useState<any[]>([]);
-  const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
-  const [products, setProducts] = useState<any[]>([]);
-  const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
-  const [productToEdit, setProductToEdit] = useState<any | null>(null);
-  const [productToDelete, setProductToDelete] = useState<any | null>(null);
-  const [categories, setCategories] = useState<any[]>([]);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [productToEdit, setProductToEdit] = useState<Product | null>(null);
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [priceRange, setPriceRange] = useState<number>(1000);
   const limit = 10;
@@ -36,7 +48,7 @@ export default function ProductManager() {
   useEffect(() => {
     (async () => {
       const all = await getProducts(1, 1000);
-      const sorted = all.sort((a: any, b: any) => b.id - a.id);
+      const sorted = all.sort((a: Product, b: Product) => b.id - a.id);
       setAllProducts(sorted);
       const cats = await getCategories();
       setCategories(cats);
@@ -85,8 +97,8 @@ export default function ProductManager() {
     try {
       await deleteProduct(productToDelete.id);
       setAllProducts((prev) => prev.filter((p) => p.id !== productToDelete.id));
-    } catch (err) {
-      console.error("Erro ao deletar produto", err);
+    } catch (error) {
+      console.error("Erro ao deletar produto", error);
     } finally {
       setProductToDelete(null);
     }
@@ -175,9 +187,11 @@ export default function ProductManager() {
               }`}
             >
               <div className="flex gap-3">
-                <img
+                <ImageWithFallback
                   src={resolveImageUrl(product.images?.[0])}
                   alt={product.title}
+                  width={96}
+                  height={96}
                   className="w-16 h-16 object-cover rounded border"
                 />
                 <div>
@@ -198,9 +212,11 @@ export default function ProductManager() {
               <div className="flex flex-col gap-2 justify-center">
                 <div className="flex items-center gap-2">
                   {product.category?.image && (
-                    <img
+                    <ImageWithFallback
                       src={resolveImageUrl(product.category.image)}
                       alt={product.category.name}
+                      width={96}
+                      height={96}
                       className="w-5 h-5 rounded-full"
                     />
                   )}

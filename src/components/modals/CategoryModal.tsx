@@ -1,4 +1,3 @@
-// components/modals/CategoryModal.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -6,15 +5,18 @@ import { Button } from "@/components/ui/Button";
 import { useTheme } from "next-themes";
 import { createCategory, updateCategory } from "@/services/categories";
 import { uploadImage } from "@/services/products";
+import ImageWithFallback from "../ui/ImageWithFallback";
+
+export type CategoryType = {
+  id: number;
+  name: string;
+  image?: string;
+};
 
 interface CategoryModalProps {
-  category?: {
-    id: number;
-    name: string;
-    image: string;
-  } | null;
+  category?: CategoryType | null;
   onClose: () => void;
-  onCategorySaved: (saved: any) => void;
+  onCategorySaved: (saved: CategoryType) => void;
 }
 
 export default function CategoryModal({
@@ -24,8 +26,8 @@ export default function CategoryModal({
 }: CategoryModalProps) {
   const [name, setName] = useState(category?.name || "");
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>(
-    category?.image || ""
+  const [imagePreview, setImagePreview] = useState<string | null>(
+    category?.image || null
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { theme } = useTheme();
@@ -33,35 +35,52 @@ export default function CategoryModal({
 
   useEffect(() => {
     setName(category?.name || "");
-    setImagePreview(category?.image || "");
+    setImagePreview(category?.image || null);
     setImageFile(null);
   }, [category]);
+
+  useEffect(() => {
+    return () => {
+      if (imagePreview?.startsWith("blob:")) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      const previewUrl = URL.createObjectURL(file);
       setImageFile(file);
-      setImagePreview(URL.createObjectURL(file));
+      setImagePreview(previewUrl);
     }
   };
 
   const handleRemoveImage = () => {
     setImageFile(null);
-    setImagePreview("");
+    setImagePreview(null);
   };
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setIsSubmitting(true);
+
     try {
       let imageUrl = imagePreview;
+
       if (imageFile) {
         imageUrl = await uploadImage(imageFile);
       }
-      const data = { name, image: imageUrl };
+
+      const data = {
+        name,
+        image: imageUrl || "https://i.pravatar.cc/1000",
+      };
+
       const result = category
         ? await updateCategory(category.id, data)
         : await createCategory(data);
+
       onCategorySaved(result);
     } catch (err) {
       console.error("Erro ao salvar categoria", err);
@@ -109,13 +128,11 @@ export default function CategoryModal({
 
           {imagePreview && (
             <div className="relative w-fit mt-2">
-              <img
-                src={
-                  imagePreview.includes("/api/v1/files/")
-                    ? `/api/proxy/${imagePreview.split("/").pop()}`
-                    : imagePreview
-                }
+              <ImageWithFallback
+                src={imagePreview}
                 alt="Prévia da imagem"
+                width={96}
+                height={96}
                 className="w-24 h-24 object-cover rounded border"
               />
               <button
