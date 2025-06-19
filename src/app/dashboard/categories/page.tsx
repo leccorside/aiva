@@ -8,7 +8,6 @@ import { useTheme } from "next-themes";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import CategoryModal from "@/components/modals/CategoryModal";
-import Image from "next/image";
 import ImageWithFallback from "@/components/ui/ImageWithFallback";
 
 type CategoryType = {
