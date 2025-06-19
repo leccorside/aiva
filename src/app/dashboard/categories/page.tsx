@@ -1,12 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  getCategories,
-  createCategory,
-  updateCategory,
-  deleteCategory,
-} from "@/services/categories";
+import { getCategories, deleteCategory } from "@/services/categories";
 import { Button } from "@/components/ui/Button";
 import { Edit, Trash, Search } from "lucide-react";
 import { useTheme } from "next-themes";
