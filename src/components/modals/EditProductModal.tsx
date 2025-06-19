@@ -7,10 +7,19 @@ import type { CategoryType } from "@/services/products";
 import { Button } from "@/components/ui/Button";
 import ImageWithFallback from "../ui/ImageWithFallback";
 
+interface Product {
+  id: number;
+  title: string;
+  description: string;
+  price: number;
+  category: CategoryType;
+  images: string[];
+}
+
 interface EditProductModalProps {
-  product: any;
+  product: Product;
   onClose: () => void;
-  onProductUpdated: (updatedProduct: any) => void;
+  onProductUpdated: (updatedProduct: Product) => void;
 }
 
 export default function EditProductModal({
@@ -49,7 +58,7 @@ export default function EditProductModal({
     setIsSubmitting(true);
 
     try {
-      let imageUrls = [...imagePreviews];
+      const imageUrls = [...imagePreviews];
 
       if (imageFiles.length > 0) {
         for (const file of imageFiles) {

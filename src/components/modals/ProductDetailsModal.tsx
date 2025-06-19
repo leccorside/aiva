@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useTheme } from "next-themes";
 import { CategoryType } from "@/services/products";
 import { Button } from "@/components/ui/Button";
@@ -33,21 +33,19 @@ export default function ProductDetailsModal({ product, onClose }: Props) {
     setLightboxIndex(index);
   };
 
-  const closeLightbox = () => {
+  const closeLightbox = useCallback(() => {
     setLightboxIndex(null);
-  };
+  }, []);
 
-  const goToPrev = () => {
-    if (lightboxIndex !== null && lightboxIndex > 0) {
-      setLightboxIndex(lightboxIndex - 1);
-    }
-  };
+  const goToPrev = useCallback(() => {
+    setLightboxIndex((idx) => (idx !== null && idx > 0 ? idx - 1 : idx));
+  }, []);
 
-  const goToNext = () => {
-    if (lightboxIndex !== null && lightboxIndex < product.images.length - 1) {
-      setLightboxIndex(lightboxIndex + 1);
-    }
-  };
+  const goToNext = useCallback(() => {
+    setLightboxIndex((idx) =>
+      idx !== null && idx < product.images.length - 1 ? idx + 1 : idx
+    );
+  }, [product.images.length]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -59,7 +57,7 @@ export default function ProductDetailsModal({ product, onClose }: Props) {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [lightboxIndex]);
+  }, [lightboxIndex, goToPrev, goToNext, closeLightbox]);
 
   return (
     <>

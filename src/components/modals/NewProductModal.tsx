@@ -7,9 +7,18 @@ import type { CategoryType } from "@/services/products";
 import { Button } from "@/components/ui/Button";
 import ImageWithFallback from "../ui/ImageWithFallback";
 
+interface Product {
+  id: number;
+  title: string;
+  description: string;
+  price: number;
+  category: CategoryType;
+  images: string[];
+}
+
 interface Props {
   onClose: () => void;
-  onProductCreated: (product: any) => void;
+  onProductCreated: (product: Product) => void;
 }
 
 export default function NewProductModal({ onClose, onProductCreated }: Props) {
@@ -48,7 +57,7 @@ export default function NewProductModal({ onClose, onProductCreated }: Props) {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      let imageUrls: string[] = [];
+      const imageUrls: string[] = [];
 
       if (imageFiles.length > 0) {
         for (const file of imageFiles) {

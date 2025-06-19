@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import { getToken, saveToken, clearToken } from "@/lib/auth";
 import { login as loginService, getProfile } from "@/services/auth";
 

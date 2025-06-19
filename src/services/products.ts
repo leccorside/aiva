@@ -16,25 +16,32 @@ export type ProductType = {
   images: string[];
 };
 
-export async function getProducts(page = 1, limit = 10) {
+export async function getProducts(
+  page = 1,
+  limit = 10
+): Promise<ProductType[]> {
   const totalLimit = 250;
   const totalRes = await fetch(
     `${API_BASE_URL}/products?offset=0&limit=${totalLimit}`
   );
   if (!totalRes.ok) throw new Error("Erro ao buscar os produtos mais recentes");
 
-  const allRecentProducts = await totalRes.json();
+  // Tipando o retorno como ProductType[] para eliminar 'any'
+  const allRecentProducts: ProductType[] = await totalRes.json();
 
-  const sorted = allRecentProducts.sort((a: any, b: any) => b.id - a.id);
+  // Agora os parâmetros 'a' e 'b' são inferidos como ProductType
+  const sorted = allRecentProducts.sort((a, b) => b.id - a.id);
   const start = (page - 1) * limit;
   const paginated = sorted.slice(start, start + limit);
 
   return paginated;
 }
 
-export async function getTotalProductsCount() {
+export async function getTotalProductsCount(): Promise<number> {
   const res = await fetch(`${API_BASE_URL}/products`);
-  const data = await res.json();
+  if (!res.ok) throw new Error("Erro ao buscar contagem de produtos");
+
+  const data: ProductType[] = await res.json();
   return data.length;
 }
 
@@ -44,7 +51,7 @@ export async function createProduct(data: {
   description: string;
   categoryId: number;
   images: string[];
-}) {
+}): Promise<ProductType> {
   const token = getToken();
   const res = await fetch(`${API_BASE_URL}/products`, {
     method: "POST",
@@ -71,7 +78,7 @@ export async function updateProduct(
     categoryId: number;
     images: string[];
   }
-) {
+): Promise<ProductType> {
   const token = getToken();
   const res = await fetch(`${API_BASE_URL}/products/${id}`, {
     method: "PUT",
@@ -83,15 +90,15 @@ export async function updateProduct(
   });
 
   if (!res.ok) {
-    const error = await res.json();
-    console.error("[updateProduct] API Error:", error);
+    const errorBody = await res.json();
+    console.error("[updateProduct] API Error:", errorBody);
     throw new Error("Erro ao atualizar produto");
   }
 
   return res.json();
 }
 
-export async function deleteProduct(id: number) {
+export async function deleteProduct(id: number): Promise<boolean> {
   const token = getToken();
   const res = await fetch(`${API_BASE_URL}/products/${id}`, {
     method: "DELETE",
@@ -109,7 +116,6 @@ export async function deleteProduct(id: number) {
 
 export async function getCategories(): Promise<CategoryType[]> {
   const res = await fetch(`${API_BASE_URL}/categories`);
-
   if (!res.ok) {
     throw new Error("Erro ao buscar categorias");
   }
@@ -128,6 +134,6 @@ export async function uploadImage(file: File): Promise<string> {
 
   if (!res.ok) throw new Error("Erro ao enviar imagem");
 
-  const data = await res.json();
+  const data: { location: string } = await res.json();
   return data.location;
 }

@@ -177,7 +177,7 @@ export default function ProductManager() {
         </div>
 
         <div className="grid gap-4">
-          {products.map((product: any) => (
+          {products.map((product: Product) => (
             <div
               key={product.id}
               className={`rounded-md border shadow-md p-4 transition grid grid-cols-1 sm:grid-cols-3 gap-4 ${
