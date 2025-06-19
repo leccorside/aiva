@@ -3,21 +3,14 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { useTheme } from "next-themes";
-import { createUser, updateUser } from "@/services/users";
+import { createUser, updateUser, type UserType } from "@/services/users";
 import { uploadImage } from "@/services/products";
 import ImageWithFallback from "../ui/ImageWithFallback";
 
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  role: string;
-  avatar: string;
-}
 interface UserModalProps {
-  user?: User | null;
+  user?: UserType | null;
   onClose: () => void;
-  onUserSaved: (saved: User) => void;
+  onUserSaved: (saved: UserType) => void;
 }
 
 export default function UserModal({
@@ -30,7 +23,7 @@ export default function UserModal({
   const [role, setRole] = useState(user?.role || "customer");
   const [password, setPassword] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>(user?.avatar || "");
+  const [imagePreview, setImagePreview] = useState(user?.avatar || "");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { theme } = useTheme();
   const isLight = theme === "light";
@@ -65,7 +58,7 @@ export default function UserModal({
         avatar = await uploadImage(imageFile);
       }
       const data = user
-        ? { name, email, role, avatar }
+        ? { name, email, role, avatar, password }
         : { name, email, role, avatar, password };
       const result = user
         ? await updateUser(user.id, data)

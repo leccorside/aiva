@@ -64,7 +64,10 @@ export default function DashboardPage() {
       }
 
       const result = await updateUser(user!.id, data);
-      setUser(result);
+      setUser({
+        ...result,
+        avatar: result.avatar ?? "", // evita erro de tipo
+      });
       localStorage.setItem("user", JSON.stringify(result));
 
       setStatusMessage("Perfil atualizado com sucesso!");
