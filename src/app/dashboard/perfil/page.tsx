@@ -91,7 +91,7 @@ export default function DashboardPage() {
   return (
     <ProtectedRoute>
       <div
-        className={`mx-auto mt-10 rounded-lg shadow-md p-6 max-w-4xl ${containerClass}`}
+        className={`mx-auto mt-10 rounded-lg shadow-md p-6 max-w-7xl ${containerClass}`}
       >
         <h1 className="text-2xl font-bold mb-6">Perfil</h1>
 
