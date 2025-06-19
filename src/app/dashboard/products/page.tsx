@@ -16,7 +16,7 @@ import ImageWithFallback from "@/components/ui/ImageWithFallback";
 interface Category {
   id: number;
   name: string;
-  image?: string;
+  image: string;
 }
 
 interface Product {
@@ -25,7 +25,7 @@ interface Product {
   description: string;
   price: number;
   images: string[];
-  category?: Category;
+  category: Category;
 }
 
 export default function ProductManager() {

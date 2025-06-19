@@ -1,14 +1,15 @@
-// app/api/proxy/[filename]/route.ts
-
 import { NextRequest } from "next/server";
+
+type Context = {
+  params: Promise<{ filename: string }>;
+};
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { filename: string } }
-) {
-  const { filename } = params;
+  context: Context
+): Promise<Response> {
+  const { filename } = await context.params;
 
-  // URL real da imagem na API da EscuelaJS
   const imageUrl = `https://api.escuelajs.co/api/v1/files/${filename}`;
 
   try {
@@ -24,7 +25,7 @@ export async function GET(
       status: 200,
       headers: {
         "Content-Type": response.headers.get("Content-Type") || "image/jpeg",
-        "Cache-Control": "public, max-age=86400", // 1 dia de cache
+        "Cache-Control": "public, max-age=86400",
       },
     });
   } catch (error) {
